@@ -1,0 +1,288 @@
+{{if not (eq .SaleEndpoint "slaughtercattle")}}
+<div class="btn-group btn-group-toggle toggle-tab" data-toggle="buttons">
+    <label class="btn btn-secondary tsppcDisplayToggle active">
+        <input type="radio" name="options" autocomplete="off" checked> Values
+    </label>
+    <label class="btn btn-secondary tsppcDisplayToggle">
+        <input type="radio" name="options" autocomplete="off"> Graph
+    </label>
+</div>
+{{end}}
+
+<div class="tsppcDisplay">
+    <form id="tsppcForm">
+
+        <div class="alert alert-danger collapse" id="tsppcValidatorAlert" role="alert"></div>
+
+
+        <table class="table table-sm table-bordered" style="width: 500px; margin-left: auto; margin-right: auto;">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Type</th>
+                    <th scope="col">Weight Range</th>
+                    <th scope="col">Price/cwt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .TraitSexPrice}}
+                <tr>
+                    <td>{{.Type}}</td>
+                    {{if gt .WeightHigh 2000}}
+                    {{if eq .WeightLow 0}}
+                    <td>All Weights</td>
+                    {{else}}
+                    <td>{{.WeightLow}} lbs +</td>
+                    {{end}}
+                    {{else}}
+                    <td>{{.WeightLow}} - {{.WeightHigh}}lbs</td>
+                    {{end}}
+                    <td>
+                        <div class="input-group">
+                            <div class=" input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input class="form-control normal-width tsppc-val tsppc-{{.Type}}" data-meta="{{.Meta}}"
+                                data-prefix="{{.Trait}}" type="number" step="0.01" min="0" value="{{.Cost}}" required>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </form>
+
+
+    {{define "premiums-input"}}
+    <div class="input-group">
+        <div class=" input-group-prepend">
+            <span class="input-group-text">$</span>
+        </div>
+        <input class="form-control normal-width prem-val" type="number" step="0.01" min="0" value="{{.}}" required>
+    </div>
+    {{end}}
+
+    {{if eq .SaleEndpoint "slaughtercattle"}}
+    <h4 class="text-center mt-4">Grid Premiums</h4>
+
+    <p class="help">
+        Grid premiums and discounts.
+        Quality grades down, yield grades 1-5 across
+    </p>
+
+
+    <!-- Proportion of calves that phenotypically may qualify for a program (e.g., CHB)-->
+    <div class="form-group" style="max-width: 60em; margin-left: auto; margin-right: auto;">
+        <label>Proportion in Program:</label>
+        <input type="number" name="proportionInProgram" class="form-control" min="0" max="1" step="0.01"
+            value="{{.ProportionInProgram}}">
+        <small class="form-text text-muted">
+            Proportion of calves that phenotypically may qualify for a program (e.g., CHB)
+        </small>
+    </div>
+
+
+    <table class="table table-sm table-bordered" style="margin-left: auto; margin-right: auto; max-width: 60em;">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">1</th>
+                <th scope="col">2</th>
+                <th scope="col">3</th>
+                <th scope="col">4</th>
+                <th scope="col">5</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .GridPremiums}}
+            <tr class="premiums-row">
+                <th style="font-weight: bold;" class="prem-val">{{index . 0}}</th>
+                <td>{{template "premiums-input" index . 1}}</td>
+                <td>{{template "premiums-input" index . 2}}</td>
+                <td>{{template "premiums-input" index . 3}}</td>
+                <td>{{template "premiums-input" index . 4}}</td>
+                <td>{{template "premiums-input" index . 5}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+
+    {{end}}
+
+
+</div>
+
+<div class="tsppcDisplay" style="display: none;">
+    <canvas id="tsppcChart" style="height: 90%; width: 90%;"></canvas>
+</div>
+
+
+
+<div class="alert alert-danger collapse" id="tsppcServerAlert" role="alert"></div>
+<div class="text-center">
+    <button class="btn btn-main" id="tsppcNextButton">Save & Next</button>
+</div>
+
+
+<script>
+
+    $('#tsppcForm').validate({
+        errorLabelContainer: "#tsppcValidatorAlert",
+        errorClass: 'error-border',
+    })
+
+    // Validate the page
+    $('#tsppcNextButton').on('click', function () {
+        if (!$('#tsppcForm').valid())
+            return
+
+        let obj = { TraitSexPricePerCwt: [] };
+
+        // Valid
+        $('.tsppc-val').each(function (i) {
+            obj.TraitSexPricePerCwt[i] = $(this).data('prefix') + "," + $(this).data('meta') + "," + $(this).val()
+        })
+
+        if (GetRunType() == "slaughtercattle") {
+            obj.GridPremiums = [];
+            $('.premiums-row').each(function (i, el) {
+                let line = "";
+                $(el).find('.prem-val').each((valIdx, val) => { v = val.value ? "," + val.value : val.textContent; line += v })
+                obj.GridPremiums[i] = line;
+            })
+            obj.proportionInProgram = $('[name="proportionInProgram"]').val() + "";
+        }
+
+
+
+
+        // Save the changes to server
+        UpdateCreateValues(obj, '#tsppcNextButton', '#tsppcServerAlert')
+    })
+
+
+    $('.tsppcDisplayToggle').on('click', function () {
+        if ($(this).hasClass('active')) return
+        $('.tsppcDisplay').toggle();
+    })
+
+
+
+
+    // Script for the interactive plot
+    var tsppcChart = new Chart(document.getElementById('tsppcChart').getContext('2d'),
+        {
+            type: 'line',
+            data: {
+                labels: ["0 lbs", "400 lbs", "500 lbs", "600 lbs", "700 lbs", "800 lbs", "1000 lbs"],
+                datasets: [{
+                    label: 'Steer',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHitRadius: 25,
+                    borderColor: 'rgba(255, 0, 0, 0.6)',
+                    fill: false,
+                    steppedLine: true,
+
+                },
+                {
+                    label: 'Heifer',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHitRadius: 25,
+                    borderColor: 'rgba(0, 255, 0, 0.6)',
+                    fill: false,
+                    steppedLine: true,
+                },
+                {
+                    label: 'Cow',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHitRadius: 25,
+                    borderColor: 'rgba(0, 0, 255, 0.6)',
+                    fill: false,
+                    steppedLine: true,
+                },
+                ]
+            },
+
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            reverse: false,
+                            min: 0,
+                            callback: function (value, index, values) {
+                                return '$' + value;
+                            }
+                        }
+                    }]
+                },
+
+                dragData: true,
+                dragDataRound: 1,
+
+                onDragStart: function (e, el) {
+                    if (tsppcChart.data.datasets[el._datasetIndex].data.length - 1 == el._index)
+                        return false;
+                },
+                onDrag: function (e, datasetIndex, index, value) {
+                    e.target.style.cursor = 'grabbing';
+                    if (tsppcChart.data.datasets[datasetIndex].data.length - 2 == index) {
+                        tsppcChart.data.datasets[datasetIndex].data[index + 1].y = value.y;
+                    }
+                },
+                onDragEnd: function (e) {
+                    e.target.style.cursor = 'default'
+                    var ds = tsppcChart.data.datasets
+                    var traits = ds[0].data.slice(0, -1).concat(ds[1].data.slice(0, -1), ds[2].data.slice(0, -1))
+                    setTraits(traits.map((v) => parseFloat(v.y)))
+                },
+                hover: {
+                    onHover: function (e) {
+                        const point = this.getElementAtEvent(e)
+                        if (point.length) e.target.style.cursor = 'grab'
+                        else e.target.style.cursor = 'default'
+                    }
+                }
+            }
+        });
+
+
+    // Set the values in the chart when the document is ready
+    $(document).ready(updateTsppcChart())
+
+    function updateTsppcChart() {
+        var traits = getTraitsForChart();
+
+        tsppcChart.data.datasets[0].data = traits[0];
+        tsppcChart.data.datasets[1].data = traits[1];
+        tsppcChart.data.datasets[2].data = traits[2];
+        tsppcChart.update();
+    }
+
+    // Gets traits for the chart to display
+    function getTraitsForChart() {
+        var steer = [];
+        var heifer = [];
+        var labels = tsppcChart.data.labels;
+
+        $('.tsppc-Steer').each(function (i) {
+            steer[i] = { x: labels[i], y: $(this).val() }
+        })
+        steer.push({ x: labels[labels.length - 1], y: steer[steer.length - 1].y })
+
+        $('.tsppc-Heifer').each(function (i) {
+            heifer[i] = { x: labels[i], y: $(this).val() }
+        })
+        heifer.push({ x: labels[labels.length - 1], y: heifer[heifer.length - 1].y })
+
+        var cow = [{ x: labels[0], y: $('.tsppc-Cow').val() }, { x: labels[labels.length - 1], y: $('.tsppc-Cow').val() }];
+
+        return [steer, heifer, cow]
+    }
+
+    function setTraits(traits) {
+        $('.tsppc-val').each(function (i) { $(this).val(traits[i]) })
+    }
+
+</script>

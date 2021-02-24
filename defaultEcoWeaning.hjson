@@ -1,0 +1,56 @@
+{
+
+	// hjson file for a weaning index
+
+	
+	saleEndpoint: weaning
+	indexTerminal: false
+
+        // Traits in the index
+        indexComponents: [
+                WW, D
+		WW, M
+		MW, D
+		STAY, D
+		CD, D
+		CD, M
+		HP, D
+        ]
+
+	// Prices of sales
+	traitSexPricePerCwt: [
+WW,S,0,400,185
+WW,S,400,500,185
+WW,S,500,600,188
+WW,S,600,700,168
+WW,S,700,800,160
+WW,S,800,9999,160
+WW,F,0,400,178
+WW,F,400,500,178
+WW,F,500,600,165
+WW,F,600,700,135
+WW,F,700,9999,135
+MW,C,0,9999,60
+	]
+
+	// The discount Rate
+	discountRate: .00
+
+	// AUM $ costs per month where the first number is cost
+	// in January and the last is the cost of an AUM in December
+	aumCost: [
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+	]
+}
+

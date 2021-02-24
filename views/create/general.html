@@ -1,0 +1,79 @@
+<form id="generalForm">
+
+    <!-- Planning Horizon -->
+    <div class="form-group" {{if .IndexTerminal }} style="display: none;"{{end}}>
+        <label>Planning Horizon:</label>
+        <input type="number" name="PlanningHorizon" class="form-control" max="50" min="0" value="{{.PlanningHorizon}}">
+        <small class="form-text text-muted">
+            The number of years to run the simulation and calculate the net returns to land, management and labor.
+        </small>
+    </div>
+</form>
+
+
+
+<center><h4>Index Component Selection</h4></center>
+
+<table class="table table-sm table-bordered col-6" style="margin: auto;">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col" style="width: min-content;">Use</th>
+            <th scope="col"><b>Component</b>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {{range .Components}}
+
+        <tr class="index-component-row">
+            <td> <input type="checkbox" {{ if .Selected }} checked {{ end }} class="component-checkbox"></td>
+            <td> <span class="component-value" data-value="{{.Short}}">{{.Display}}</span> <i class="fa fa-question-circle float-right" aria-hidden="true"
+                data-toggle="tooltip"
+                title="{{.Long}}">
+            </td>
+
+        </tr>
+
+        {{end}}
+        
+    </tbody>
+</table>
+
+<div style="height: 60px;"></div>
+
+
+
+
+
+<div class="alert alert-danger collapse" id="generalServerAlert" role="alert"></div>
+<div class="text-center">
+    <button class="btn btn-main" id="generalNextButton">Next</button>
+</div>
+
+
+<script>
+    $('#generalForm').validate({
+        errorLabelContainer: "#generalServerAlert",
+        errorClass: 'error-border',
+    })
+
+    // Validate the page
+    $('#generalNextButton').on('click', function () {
+        if (!$('#generalForm').valid())
+            return
+
+        // Create map of index components
+        var components = []
+        $('.index-component-row').each(function(idx, el){
+            if ($(el).find('.component-checkbox')[0].checked){
+                components.push($(el).find('.component-value').data('value'))
+            }
+        })
+
+        map = FormToMap('#generalForm')
+        map.IndexComponents = components
+        // Save the changes to server
+        UpdateCreateValues(map, '#generalNextButton', '#generalServerAlert')
+    })
+</script>

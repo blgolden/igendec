@@ -1,0 +1,103 @@
+<!-- Displays details about a job -->
+
+<!-- Check to see if we have been passed a valid Job to render -->
+{{if not .Job}}
+<label style="width: 100%; text-align: center; color: red;">Something went wrong! Please try again later or contact
+    support</label>
+{{else}}
+
+<!-- If valid job  -->
+<form>
+
+    <div class="form-row justify-content-between">
+        <div class="form-group col-md-6">
+            <label>Job Name</label>
+            <input type="text" class="form-control" value="{{.Job.Name}}" id="currentJobName" readonly required>
+        </div>
+
+
+        <div class="form-group col-md-3">
+            <label style="width: 100%;">Status:</label>
+            {{if eq .Job.Status "passed"}}
+            <span class="badge badge-success">{{.Job.Status}}</span>
+            {{else if eq .Job.Status "processing"}}
+            <span class="badge badge-info">{{.Job.Status}}</span>
+            {{else}}
+            <span class="badge badge-warning">{{.Job.Status}}</span>
+            {{end}}
+        </div>
+    </div>
+
+    <label>Comment:</label>
+
+    <pre class="text-area">{{.Job.Comment}}</pre>
+
+
+    {{if eq .Job.Status "passed"}}
+
+    <div class="page-divider"></div>
+
+    <h4 class=".page-header">Output</h4>
+    <table class="table table-sm" style="margin: auto;">
+        <thead class="strong-table-header">
+            <tr>
+                <th scope="col"><b>Trait</b></th>
+                <th scope="col"><b>Component</b></th>
+                <th scope="col"><b>Marginal Economic Value</b></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {{ range .Job.Output }}
+            <tr>
+                <td scope="col"><b>{{.Trait.String}}</b></td>
+                <td scope="col"><b>{{.Component.String}}</b></td>
+                <td scope="col"><b>{{.DisplayMEV}}</b></td>
+            </tr>
+            {{end}}
+
+        </tbody>
+    </table>
+
+    {{end}}
+</form>
+
+<div class="page-divider"></div>
+<h4 class="page-header">Actions</h4>
+
+{{if eq .Job.Status "passed"}}
+
+
+<div class="form-group">
+    <label>Bull Selection</label>
+    <button style="display: block;" class="btn btn-main form-control normal-width"
+        onclick="BullSelection($('#currentJobName').val());">Select</button>
+    <small class="form-text text-muted">
+        Allows you to choose from several databases, and run this job's results against that database.
+    </small>
+</div>
+
+{{end}}
+
+
+<div class="form-group">
+    <label>Download</label>
+    <button style="display: block;" class="btn btn-main form-control normal-width"
+        onclick="DownloadJob($('#currentJobName').val());">Download Zip</button>
+    <small class="form-text text-muted">
+        Zip up all of the relevant job files to download. Use this if you need support with a job not running correctly.
+    </small>
+</div>
+
+<div class="form-group">
+    <label>Delete Job</label>
+    <button style="display: block;" class="btn btn-danger form-control normal-width"
+        onclick="DeleteJob($('#currentJobName').val());">Delete</button>
+    <small class="form-text text-muted">
+        Delete this job and it's contents. This cannot be undone.
+    </small>
+</div>
+
+<div class="alert alert-danger collapse" id="jobAlert" role="alert"></div>
+<div class="alert alert-success collapse" id="jobSuccessAlert" role="alert"></div>
+{{end}}

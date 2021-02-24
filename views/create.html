@@ -1,0 +1,124 @@
+<div class="row m-5 justify-content-around">
+    
+    <div class="col-5 white-bkgd">
+        <h3 class="page-header text-center">Create A New Index Job</h3>
+
+        <form action="/create/build" method="GET">
+        
+        <div class="form-group">
+            <label>Sale Endpoint:</label>
+            <select name="endpoint" class="form-control">                
+                
+                {{ range .Endpoints }}
+                <option value="{{.Internal}}">{{.Display}}</option>
+                {{end}}
+
+            </select>
+
+
+
+            <small class="form-text text-muted">
+                Specifies the sale point for calves. This will define what default values you get and how the job is executed.
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label>Index Type:</label>
+            
+            <select name="indextype" class="form-control">                
+
+                {{ range .IndexTypes }}
+                <option value="{{.}}">{{.}}</option>
+                {{end}}
+
+            </select>
+
+            <small class="form-text text-muted">
+                Specifies the type of index to be constructed.
+            </small>
+        </div>
+
+        <button class="btn btn-main">Build</button>
+        </form>
+
+    </div>
+    
+    
+    <div class="col-5 white-bkgd">
+        <h3 class="page-header text-center">Edit An Existing Index Job</h3>
+
+        <form action="/create/build" method="GET" id="rerunForm">
+            <div class="form-group" >
+                <label>Select Job:</label>
+                <select name="job" id="jobSelect" class="form-control">                
+                    {{if eq (len .Jobs) 0}}<option hidden data-comment=""> No jobs run yet!</option>{{end}}
+                    {{ range .Jobs }}
+                    <option data-comment="{{.Comment}}" value="{{.Name}}">{{.Name}}</option>
+                    {{end}}
+
+                </select>
+                <small class="form-text text-muted">
+                    Choose a job to re-run. You can change everything except the sale endpoint of a previous job.  To change the sale endpoint a new job must be created.
+                </small>
+            </div>
+        </form>
+
+        <label {{if eq (len .Jobs) 0}}style="display: none;"{{end}}>Job Comment:</label>
+
+        <pre class="text-area" id="jobComment" {{if eq (len .Jobs) 0}}style="display: none;"{{end}}></pre>
+
+        <div class="form-row">
+            <div class="col-6">
+                <button class="btn btn-main" id="buttonEdit" {{if eq (len .Jobs) 0}}disabled{{end}}>Edit</button>
+                <small class="form-text text-muted">
+                    Edit the job's details and then re-run under a different name.
+                </small>
+            </div>
+
+            <div class="col-6">
+                <button class="btn btn-main" id="buttonRun" {{if eq (len .Jobs) 0}}disabled{{end}}>Run</button>
+                <small class="form-text text-muted">
+                    Run this job again without modifying. The result will overwrite the current job. May take a couple of minutes.
+                </small>
+            </div>
+        </div>
+
+        <div class="alert alert-danger collapse" id="rerunAlert" role="alert"></div>
+
+    </div>
+</div>
+
+<script>
+    $('#buttonEdit').on('click', function(){
+        window.location.href = "/create/build?job=" + $('#rerunForm [name="job"]').val()
+    })
+
+
+    $('#buttonRun').on('click', function(){
+        $(this).html('<span class="spinner-border spinner-border-sm"></span> Running')
+
+        return $.ajax({
+            type: 'POST',
+            url: "/create/run?job="+$('#rerunForm [name="job"]').val(),
+        })
+            .done(function (response) {
+                window.location.href = "/jobs?job="+$('#rerunForm [name="job"]').val() // Go to jobs page
+            })
+            .always(() => $('#buttonRun').html('Run')) // Always reset the button
+            .fail(function (xhr, status, error) {
+                $("#rerunAlert").text(xhr.responseText) // Display the error
+                $("#rerunAlert").collapse('show')
+            });
+    })
+
+    $(document).ready(function(){
+        $('#jobSelect').blur()
+    })
+
+    $('#jobSelect').on('blur change', function(){
+        console.log($(this).find(":selected"))
+        console.log($(this).find(":selected").data('comment'))
+        $('#jobComment').text($(this).find(":selected").data('comment'))
+    })
+
+</script>

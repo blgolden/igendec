@@ -1,0 +1,16 @@
+BEGIN{print "{"}
+{
+	for(i=1; i<=NF; i++ ){
+
+		if( $i == "%_Rank" )
+			$i = pval "_" $i
+		print "\t" $i ":{"
+		print "\t\theader:" $i
+		print "\t\tcomment:" 
+		print "\t\tselect:false"
+		print "\t}"
+
+		pval = $i
+	}
+}
+END{print "}"}

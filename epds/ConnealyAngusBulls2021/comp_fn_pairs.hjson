@@ -1,0 +1,160 @@
+//
+//
+[
+	{
+		name:ID
+		header:Tag_#
+		comment:Tag_#
+		select:true
+	}
+	{
+		name:Sire
+		header:Sire
+		comment:Sire
+		select:false
+	}
+	{
+		name:Dam's_Sire
+		header:Dam's_Sire
+		comment:Dam's_Sire
+		select:false
+	}
+	{
+		name:Reg_#
+		header:Reg_#
+		comment:Reg_#
+		select:false
+	}
+	{
+		name:D.O.B.
+		header:D.O.B.
+		comment:Birth date
+		select:false
+	}
+	{
+		name:BW
+		header:BW
+		comment:Actual birth weight
+		select:false
+	}
+	{
+		name:205_ratio
+		header:205_ratio
+		comment:205_ratio
+		select:false
+	}
+	{
+		name:365_ratio
+		header:365_ratio
+		comment:365_ratio
+		select:false
+	}
+	{
+		name:Dam's_#_of_NR_Calves
+		header:Dam's_#_of_NR_Calves
+		comment:Dam's_#_of_NR_Calves
+		select:false
+	}
+	{
+		name:Dam's_NR
+		header:Dam's_NR
+		comment:Dam's_NR
+		select:false
+	}
+	{
+		name:Dam's_#_of__YR_Calves
+		header:Dam's_#_of__YR_Calves
+		comment:Dam's_#_of__YR_Calves
+		select:false
+	}
+	{
+		name:Dam's_YR
+		header:Dam's_YR
+		comment:Dam's_YR
+		select:false
+	}
+	{
+		name:"CE,D"
+		header:CED
+		comment:CED EPD
+		select:false
+	}
+	{
+		name:"BW,D"
+		header:Birth
+		comment:Birth weight EPD
+		select:false
+	}
+	{
+		name:"WW,D"
+		header:Wean
+		comment:Weaning weight EPD
+		select:false
+	}
+	{
+		name:"YW,D"
+		header:Yrlng__
+		comment:Yearling weight EPD
+		select:false
+	}
+	{
+		name:"HP,D"
+		header:HP__
+		comment:Heifer pregnancy EPD
+		select:false
+	}
+	{
+		name:"WW,M"
+		header:Milk
+		comment:Weaning weight maternal EPD (milk)
+		select:false
+	}
+	{
+		name:"HCW,D"
+		header:CW
+		comment:Hot carcass weight EPD
+		select:false
+	}
+	{
+		name:"MS,D"
+		header:Marb
+		comment:Marbling score EPD
+		select:false
+	}
+	{
+		name:"REA,D"
+		header:RE
+		comment:REA EPD
+		select:false
+	}
+	{
+		name:$M
+		header:$M
+		comment:$M
+		select:false
+	}
+	{
+		name:$F
+		header:$F
+		comment:$F
+		select:false
+	}
+	{
+		name:$G
+		header:$G
+		comment:$G
+		select:false
+	}
+	{
+		name:$B
+		header:$B
+		comment:$B
+		select:false
+	}
+	{
+		name:$C
+		header:$C
+		comment:$C
+		select:false
+	}
+]

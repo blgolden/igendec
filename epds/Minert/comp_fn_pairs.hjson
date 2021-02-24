@@ -1,0 +1,56 @@
+[
+	{
+		name:ID
+		header:ID
+		comment:ID
+		select:true
+	}
+	{
+		name:"WW,D"
+		header:WWD
+		comment:Weaning wt EPD
+		select:false
+	}
+	{
+		name:"WW,M"
+		header:WWM
+		comment:Milk EPD
+		select:false
+	}
+	{
+		name:"YW,D"
+		header:YWD
+		comment:Yearling wt EPD
+		select:false
+	}
+	{
+		name:"HP,D"
+		header:HPD
+		comment:Heifer pregnancy EPD
+		select:false
+	}
+	{
+		name:$M
+		header:$M
+		comment:$M index
+		select:false
+	}
+	{
+		name:"CE,D"
+		header:CED
+		comment:Calving ease EPD
+		select:false
+	}
+	{
+		name:Reg_#
+		header:Reg_#
+		comment:Registration number
+		select:true
+	}
+	{
+		name:Sire
+		header:Sire
+		comment:Sire's name
+		select:false
+	}
+]

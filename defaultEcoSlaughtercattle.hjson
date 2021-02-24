@@ -1,0 +1,95 @@
+{
+
+	// hjson file for a slaughtercattle index
+
+	
+	saleEndpoint: slaughtercattle
+	indexTerminal: false
+
+        // Traits in the index
+        indexComponents: [
+                WW,D
+		WW,M
+		YW,D
+		FI,D
+		MW,D
+		STAY,D
+		CD,D
+		CD,M
+		HP,D
+		HCW,D
+		REA,D
+		FAT,D
+		MS,D
+        ]
+
+	// Prices of sales
+	traitSexPricePerCwt: [
+SC,S,0,599,187
+SC,S,600,900,207
+SC,S,900,9999,187
+SC,F,0,599,187
+SC,F,600,900,207
+SC,F,900,9999,187
+MW,C,0,9999,60
+	]
+
+	// Grid premiums and discounts
+	// Quality grades down, yield grades 1-5 across
+	gridPremiums: [
+	Prime,8.00,7.00,6.00,-9.00,-14.00
+	Program,3.00,2.00,1.00,0.0,0.0
+	Choice,2.00,1.00,0.00,-15.00,-20.00
+	Select,-7.00,-8.00,-9.00,-24.00,-29.00
+	Standard,-16.00,-17.00,-18.00,-33.00,-38.00
+	]
+	
+	// Proportion of calves that phenotypically may qualify for a program (e.g., CHB)
+	proportionInProgram: .50
+
+	// The discount Rate
+	discountRate: .00
+
+	// Feedlot feed cost $/lb DM
+	feedlotFeedCost: .08
+
+	// Number of days on feed in a feedlot
+	daysOnFeed: 140.
+
+	// Number of days to background
+	backgroundDays: 150
+
+	// AUM $ costs per month where the first number is cost
+	// in January and the last is the cost of an AUM in December
+	aumCost: [
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+	]
+
+        // Background Aum Costs per month starting with January
+        backgroundAumCost: [
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+        ]
+}
+

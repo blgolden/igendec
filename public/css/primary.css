@@ -1,0 +1,339 @@
+/* CSS for the primary layout file */
+
+/* Variables */
+:root{
+    --primary-font:'Montserrat', sans-serif;
+    --header-font: 'Ubuntu', sans-serif;
+    --input-font: 'Roboto Slab', serif;
+
+    --grey:  rgb(215,215,215);
+    --dark-grey: rgb(90,90,90);
+    --dark-shadow: rgb(20,20,20);
+    --navy: #5a6268;
+}
+
+
+
+/* General changes */
+
+/* Changes to body */
+body {
+    /* Always keep vertical scrollbar, disallow horizontal scrolling on body */
+    overflow-y: scroll;
+    overflow-x: hidden;
+  
+    min-height: 100vh;
+    font-family: var(--primary-font);
+    display: flex;
+    flex-direction: column;
+}
+
+#embeddedBody{
+    flex: 1;
+    background-image: url('/img/background-faded.jpg');
+}
+
+.white-bkgd{
+    padding: 25px;
+    background-color: white;
+    border-radius: 25px;
+    border: solid var(--dark-grey) 3px;
+}
+
+
+
+footer {
+    padding: 14px 0;
+    width: 100%;
+    background-color: black;
+    color: var(--grey);
+    text-align: center;
+}
+
+/* Remove default color, and underline for links */
+a, a:hover, a:focus  { 
+    color: inherit;     
+    text-decoration: none; 
+}
+
+
+/* Create class to allow default behaviour */
+a.default-link, a.default-link:hover, a.default-link:focus{
+   color: blue;
+   text-decoration: underline;
+}
+a.default-link:hover{
+    cursor: pointer;
+}
+
+
+form label{
+    font-weight: bold;
+}
+
+
+/* Error handling classes */
+
+label.error{
+    font-weight: normal;
+    font-family: var(--primary-font);
+    color: red;
+}
+.error-border{
+    border-color: red;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 4px red;    
+}
+.alert-danger label{
+    border: none;
+    box-shadow: none;
+}
+
+
+
+input, td{
+    font-family: var(--input-font);
+}
+
+
+
+
+
+/* For the page headers */
+.page-header{
+    font-family: var(--header-font);
+}
+
+.page-divider{
+    border-top: solid var(--grey) 3px;
+    margin-top: 50px;
+    padding-top: 50px;
+}
+
+.top-border{
+    border-top: solid var(--grey) 2px;
+    margin-top: 1vh;
+    padding-top: 3vh;
+}
+
+
+
+/* Navigation Bar */
+.navbar{
+    border-bottom: solid var(--grey) 2px;
+}
+
+.nav-item{
+    padding: 0 1vw;
+    border-radius: 5px;
+}
+.nav-item:hover{
+    background-color: var(--grey);
+}
+
+
+/* Images */
+.background-image{
+    width: 100%;
+    position: absolute;
+}
+
+
+/* Forms */
+
+/* Override bootstraps blue highlight when focusing on input element */
+.form-control:focus {
+    border-color: var(--grey);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 4px var(--dark-shadow);
+}
+
+.form-control.normal-width{
+    max-width: 12em;
+}
+
+
+
+/* Override bootstraps btn-primary class */
+.btn-main, a.btn-main{
+    color: var(--grey);
+    border-color: black;
+    background-color: var(--dark-grey);
+    min-width:100px;
+}
+.btn-main:hover, .btn-main:focus, .btn-main:active{
+    background-color: var(--grey);
+    color: black;
+    border-color: var(--grey);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 4px var(--dark-shadow);
+}
+
+.btn-danger{
+    font-weight: bold;
+    color: var(--grey);
+    border-color: indianred;
+    background-color: red;
+    min-width:100px;
+}
+.btn-danger:hover, .btn-danger:focus, .btn-danger:active{
+    background-color: darkred;
+}
+
+
+
+/* List group stuff */
+.list-group .active {
+    color: black;
+    background-color: var(--grey);
+    border: solid black 1px;
+}
+.list-group-item:hover{
+    cursor: pointer;
+}
+.list-group-item.indented{
+    margin-left: 10%;
+    width: 90%;
+}
+
+
+/* Create page */
+.create-options{
+    padding: 0 3vw;
+}
+.create-options .list-group-item:not(.disabled){
+    font-family: var(--header-font);
+}
+.create-options .list-group-item:first-of-type{
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+.create-options .list-group-item:last-of-type{
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.age-dist-age{
+    background-color: lightgray;
+}
+
+.editable-cell:focus, .editable-cell:hover{
+    border-color: var(--grey);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 4px var(--dark-shadow);
+    outline:none;
+}
+
+.clickable-cell:focus, .clickable-cell:hover{
+    border-color: var(--grey);
+    background-color: var(--grey);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 4px var(--dark-shadow);
+    outline:none;
+}
+.clickable-cell:hover{
+    cursor: pointer;
+}
+
+/* Class for big minus used in breed composition page */
+.big-minus{
+    color:white;
+}
+.big-minus:hover{
+    color: red;
+    cursor: pointer;
+}
+
+.delete-icon{
+    font-size: 20px;
+    text-align: center;
+    margin:0;
+    padding: 0;
+}
+.delete-icon:hover{
+    color: red;
+    cursor: pointer;
+}
+
+/* Sets the header elem */
+.strong-table-header th{
+    background: var(--grey);
+    font-family: var(--header-font);
+}
+
+table.min {
+    width: min-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+table.min th {
+    padding:0 2em;
+}
+
+/* Class for button thats adds a composition card in breed composition panels */
+.new-breed-comp{
+    font-family: var(--input-font);
+    background-color: lightgray;
+    height: 50px;
+    padding: 10px;
+}
+
+/* Hide year in jquery datepicker */
+.ui-datepicker-year{
+    display: none;
+}
+
+
+/* Customisations for home page cards */
+.home-cards .card-title {
+    font-family: var(--header-font);
+    font-size: 1.5em
+}
+.home-cards .card{
+    background-color: rgba(40,40,40,0.95);
+    color: var(--grey);
+    border: solid var(--dark-grey) 3px;
+}
+.home-cards .card:hover{
+    cursor: pointer;
+    border-color: white;
+    color: white;
+}
+
+
+#breedsAccordion .card-header{
+    background-color: var(--navy);
+    color: white;
+}
+
+#breedsAccordion .card-header:hover{
+    cursor: pointer;
+}
+
+.counter{
+    font-family: var(--header-font);
+    background-color: var(--navy);
+    border: solid 1px var(--grey);
+    color:white;
+    border-radius: 5px;
+    padding: 6px;
+}
+
+
+.text-area {
+    background-color:ghostwhite;
+    padding: 10px;
+    border-radius: 5px;
+    min-height: 1em;
+}
+
+
+.help {
+    border-left: solid 3px var(--grey);
+    padding-left: 5%;
+    margin-left: 10%;
+    margin-top: 2rem;
+    font-size: 0.8rem;
+}
+
+/* This is for all of the graph/values toggles in the top right */
+.toggle-tab {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}

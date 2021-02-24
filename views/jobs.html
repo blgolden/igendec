@@ -1,0 +1,59 @@
+<!-- Create page HTML -->
+
+<div class=" row py-5">
+
+    <!-- Jobs List -->
+    <div class="col-3 create-options">
+        <h3 class="page-header text-center">Jobs</h3>
+        <input type="text" placeholder="Filter..." class="filter form-control" data-target="#jobsList a">
+        <div class="list-group" id="jobsList">
+            {{range .JobsList}}
+            <a class="list-group-item" data-id="{{.}}">{{.}}</a>
+            {{end}}
+        </div>
+    </div>
+
+    <!-- Content container -->
+    <div class="col-8 white-bkgd" id="jobsContent" style="min-height: 40vh;"></div>
+</div>
+
+
+
+
+<script>
+    // When the page loads, click the first list item to load the job from the server
+    $(document).ready(function () { $('#jobsList a[data-id="{{.Selected}}"]').click() })
+
+    // Event listener on the jobs
+    // Loads in job data from server into #jobsContent div
+    $('#jobsList a').on('click', function () {
+        // Set loading symbol
+        $("#jobsContent").html(`<div class="d-flex justify-content-center mt-5 pt-5"><div class="spinner-border"></div></div>`)
+        $("#jobsContent").load("jobs/info?name=" + $(this).text())
+    })
+
+    // redirects the page to a get request for a file
+    function DownloadJob(name){
+        window.location.href = "/jobs/download?id="+name
+    }
+
+    // Deletes the given job
+    function DeleteJob(name){
+        $.ajax({
+        type: 'DELETE',
+        url: "/jobs/delete?id="+name,
+        }).done(function () {
+            $('#jobAlert').collapse('hide')
+            window.location.reload()
+        }).fail(function (xhr, status, error) {
+            $('#jobAlert').text('Failed to delete job - please try again later')
+            $('#jobAlert').collapse('show')
+        });
+    }
+
+    // loads the selection page
+    function BullSelection(name){
+        window.location.href = "/jobs/select?job="+name
+    }
+
+</script>

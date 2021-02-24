@@ -1,0 +1,242 @@
+[
+	{
+		name:ASA_Nbr
+		header:ASA_Nbr
+		comment: ASA Registration
+		select:false
+	}
+	{
+		name:ID
+		header:Tattoo
+		comment:Tattoo
+		select:true
+	}
+	{
+		name:Name
+		header:Name
+		comment:Animals name
+		select:false
+	}
+	{
+		name:Brth_Dt
+		header:Brth_Dt
+		comment:birth date
+		select:false
+	}
+	{
+		name:Sex
+		header:Sex
+		comment:Sex
+		select:false
+	}
+	{
+		name:Sire_Nbr
+		header:Sire_Nbr
+		comment:Sire's registration number
+		select:false
+	}
+	{
+		name:Sire
+		header:Sire
+		comment:Sire's name
+		select:false
+	}
+	{
+		name:Dam_Id
+		header:Dam_Id
+		comment:Dam's tatoo
+		select:false
+	}
+	{
+		name:GE
+		header:GE
+		comment:no idea
+		select:false
+	}
+	{
+		name:Color
+		header:Color
+		comment:Color
+		select:false
+	}
+	{
+		name:API
+		header:API
+		comment:Angus index
+		select:false
+	}
+	{
+		name:API_%_Rank
+		header:API_%_Rank
+		comment:API rank
+		select:false
+	}
+	{
+		name:Ti
+		header:Ti
+		comment:Terminal index
+		select:false
+	}
+	{
+		name:Ti_%_Rank
+		header:Ti_%_Rank
+		comment:Ti rank
+		select:false
+	}
+	{
+		name:"CE,D"
+		header:CE_Epd
+		comment:Calving ease direct
+		select:false
+	}
+	{
+		name:CE_Epd_%_Rank
+		header:CE_Epd_%_Rank
+		comment:CE rank
+		select:false
+	}
+	{
+		name:"BW,D"
+		header:B_Wt_Epd
+		comment:Birth weight EPD
+		select:false
+	}
+	{
+		name:B_Wt_Epd_%_Rank
+		header:B_Wt_Epd_%_Rank
+		comment:BW EPD rank
+		select:false
+	}
+	{
+		name:"WW,D"
+		header:W_Wt_Epd
+		comment:Weaning direct EPD
+		select:false
+	}
+	{
+		name:W_Wt_Epd_%_Rank
+		header:W_Wt_Epd_%_Rank
+		comment:WW EPD rank
+		select:false
+	}
+	{
+		name:"YW,D"
+		header:Y_Wt_Epd
+		comment:Yearling weight EPD
+		select:false
+	}
+	{
+		name:Y_Wt_Epd_%_Rank
+		header:Y_Wt_Epd_%_Rank
+		comment:YW EPD rank
+		select:false
+	}
+	{
+		name:"CE,M"
+		header:MCE_Epd
+		comment:Calving ease total maternal EPD
+		select:false
+	}
+	{
+		name:MCE_Epd_%_Rank
+		header:MCE_Epd_%_Rank
+		comment:CE EPD rank
+		select:false
+	}
+	{
+		name:"WW,M"
+		header:Mlk_Epd
+		comment:Weaning maternal (milk) EPD
+		select:false
+	}
+	{
+		name:Mlk_Epd_%_Rank
+		header:Mlk_Epd_%_Rank
+		comment:Milk rank
+		select:false
+	}
+	{
+		name:MWW_Epd
+		header:MWW_Epd
+		comment:no idea
+		select:false
+	}
+	{
+		name:MWW_Epd_%_Rank
+		header:MWW_Epd_%_Rank
+		comment:MW rank
+		select:false
+	}
+	{
+		name:"STAY,D"
+		header:Stay_Epd
+		comment:Stayability EPD
+		select:false
+	}
+	{
+		name:Stay_Epd_%_Rank
+		header:Stay_Epd_%_Rank
+		comment:Stay rank
+		select:false
+	}
+	{
+		name:"HCW,D"
+		header:C_Wt_Epd
+		comment:Hot carcass weight EPD
+		select:false
+	}
+	{
+		name:C_Wt_Epd_%_Rank
+		header:C_Wt_Epd_%_Rank
+		comment:HCW EPD rank
+		select:false
+	}
+	{
+		name:"MS,D"
+		header:Marb_Epd
+		comment:Marbling score EPD
+		select:false
+	}
+	{
+		name:Marb_Epd_%_Rank
+		header:Marb_Epd_%_Rank
+		comment:MS EPD rank
+		select:false
+	}
+	{
+		name:YG_Epd
+		header:YG_Epd
+		comment:Yield grade EPD
+		select:false
+	}
+	{
+		name:YG_Epd_%_Rank
+		header:YG_Epd_%_Rank
+		comment:YG rank
+		select:false
+	}
+	{
+		name:"FAT,D"
+		header:BF_Epd
+		comment:Backfat thinkness EPD
+		select:false
+	}
+	{
+		name:BF_Epd_%_Rank
+		header:BF_Epd_%_Rank
+		comment:BF rank
+		select:false
+	}
+	{
+		name:"REA,D"
+		header:REA_Epd
+		comment:Rib eye area EPD
+		select:false
+	}
+	{
+		name:REA_Epd_%_Rank
+		header:REA_Epd_%_Rank
+		comment:REA rank
+		select:false
+	}
+]

@@ -1,0 +1,280 @@
+<!-- Toggle buttons for switching between values and graph -->
+<div class="btn-group btn-group-toggle toggle-tab" data-toggle="buttons">
+    <label class="btn btn-secondary agedistDisplayToggle">
+        <input type="radio" name="options" autocomplete="off"> Values
+    </label>
+    <label class="btn btn-secondary agedistDisplayToggle active">
+        <input type="radio" name="options" autocomplete="off" checked> Graph
+    </label>
+</div>
+
+
+<!-- Row holding Age Range input and Total Cows counter -->
+<div class="form-row d-flex justify-content-around">
+    <div class="form-group col-3 text-center">
+        <label>Age Range &nbsp; <i class="fa fa-question-circle" aria-hidden="true" data-toggle="tooltip"
+                title="The highest age an animal can have in your herds"></i></label>
+        <input type="number" class="form-control" id="ageRangeInput" max="50" min="2" value="{{.AgeRange}}">
+    </div>
+
+    <div class="form-group col-3 text-center">
+        <label style="width: 100%;">Percentage &nbsp; <i class="fa fa-question-circle" aria-hidden="true"
+                data-toggle="tooltip" title="Total number of animals as given on Herds page."></i>
+        </label>
+        <label class="animal-counter counter" style="width: 100%;"><span id="ageDistSelectedCowCount">0</span> /
+            <span>100</span></label>
+    </div>
+</div>
+
+
+<!-- Some alerts for error handling -->
+<div class="alert alert-danger collapse" id="ageDistAlert" role="alert">
+    Percentages should sum to 100%
+</div>
+<div class="alert alert-danger collapse" id="advalidatorAlert" role="alert"></div>
+
+
+
+<!-- Values form that displays counts of animals in each age bracket -->
+<form id="agedistForm" class="agedistDisplay" style="display: none;">
+    <table class="table table-sm table-bordered min" id="ageDistTable">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Age</th>
+                <th scope="col">Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .AgeDist}}
+            <tr>
+                <td>{{.Age}}</td>
+                <td><input class="age-dist-percent form-control normal-width" type="number" step="any" min="0"
+                        value="{{.Percent}}" required></td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</form>
+
+
+<!-- Canvas to draw line graph to -->
+<div class="agedistDisplay">
+    <canvas id="agedistChart" style="height: 90%; width: 90%;"></canvas>
+    <p class="help">Drag the points on the plot to your values.</p>
+</div>
+
+
+
+<!-- Button for submission of the page and another alert for any server side errors -->
+<div class="alert alert-danger collapse" id="agedistServerAlert" role="alert"></div>
+<div class="text-center">
+    <button class="btn btn-main" id="agedistNextButton">Save & Next</button>
+</div>
+
+
+<script>
+
+    // JQuery validate, sets the options for validation of this page
+    $('#agedistForm').validate({
+        errorLabelContainer: "#advalidatorAlert",
+        errorClass: 'error-border',
+    })
+
+    // Validate the page - called when the user presses the Save & Next button
+    $('#agedistNextButton').on('click', function () {
+        if (!$('#agedistForm').valid())
+            return
+
+        // Check the herds
+        if (!ageDistValidate())
+            return
+
+        // Valid
+
+        // Save the changes to server
+        data = { agedist: getAgeDistCounts().map((v) => (parseFloat(v) / 100) + "").reverse() }
+
+        UpdateCreateValues(data, '#agedistNextButton', '#agedistServerAlert')
+    })
+
+
+    // Validates the counts in the Values table
+    function ageDistValidate() {
+        // Fails ?
+        if (round(getAgeDistSum(), 0) != 100) {
+            $('#ageDistTable').addClass('error-border');
+            $('#ageDistAlert').collapse('show');
+            return false
+        }
+
+        // Success
+        $('#ageDistTable').removeClass('error-border')
+        $('#ageDistAlert').collapse('hide');
+        return true
+    }
+
+    // Returns an array of all the percentage values
+    function getAgeDistCounts() {
+        var arr = []
+        $('.age-dist-percent').each(function (i, el) {
+            arr[i] = $(el).val() || "0"
+        })
+        return arr
+    }
+
+    // Returns the sum of all of the values on the Values page
+    function getAgeDistSum() {
+        return getAgeDistCounts().reduce(function (a, v) {
+            return a += parseFloat(v) || 0
+        }, 0)
+    }
+
+    // Takes in an array of values and populates the DOM value elements on the Values page
+    function setAgeDistPercents(arr) {
+        $('.age-dist-percent').each(function (i, el) {
+            $(el).val(arr[i], 2)
+        })
+        updatePercentCounter();
+    }
+
+
+    // Update chart on cell change
+    // Also sum cells and update counter
+    $(document).on('blur change', '.age-dist-percent', function () {
+        updateAgedistChart(); updatePercentCounter();
+    })
+
+    function updatePercentCounter() {
+        sum = round(getAgeDistSum(), 0)
+        $('#ageDistSelectedCowCount').text(sum)
+        if (sum == 100) {
+            $('.animal-counter').css('color', 'white')
+        } else {
+            $('.animal-counter').css('color', 'red')
+        }
+
+    }
+
+
+    // Adds cells to the age-dist table
+    $('#ageRangeInput').on('click input', function () {
+        var num = $(this).val();
+        if (num < 2) return;
+        if (num > 50) num = 50;
+
+        var curr = $('#ageDistTable tr').length;
+
+        while (curr < num) {
+            $('#ageDistTable').append('<tr><td>' + (curr + 1) + '</td><td><input class="age-dist-percent form-control normal-width" type="number" step="any" min="0" value="0" required></td></tr>');
+            curr++;
+        }
+        while (curr > num) {
+            $('#ageDistTable tr:last').remove();
+            curr--;
+        }
+        updateAgedistChart();
+    })
+
+    // Event when one of the Values|Graph buttons at the top of the page is pressed
+    // Toggles the two display containers which hides one and shows the other
+    $('.agedistDisplayToggle').on('click', function () {
+        if ($(this).hasClass('active')) return
+        $('.agedistDisplay').toggle();
+    })
+
+    // On the tab being shown initilise the data 
+    $('a[data-toggle="list"][data-target="#agedist"]').on('shown.bs.tab', function (e) {
+        $('.age-dist-percent:first').blur(); updateAgedistChart();
+    })
+
+
+    // This function will collect the values from the Values page and update the Chart accordingly
+    function updateAgedistChart() {
+        var dist = getAgeDistCounts();
+        if (Math.max(...dist) > agedistChart.options.scales.yAxes[0].ticks.max - 5 && agedistChart.options.scales.yAxes[0].ticks.max < 100) {
+            agedistChart.options.scales.yAxes[0].ticks.max += 10
+        }
+        agedistChart.data.labels = Array.from(Array(dist.length).keys()).map(function (el) { return el + 2 });
+        agedistChart.data.datasets[0].data = dist;
+        agedistChart.update();
+    }
+
+
+    // Script for the interactive plot
+    var agedistChart = new Chart(document.getElementById('agedistChart').getContext('2d'),
+        {
+            type: 'line',
+            data: {
+                labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                datasets: [{
+                    label: 'Age At Calving Distribution',
+                    borderWidth: 1,
+                    pointRadius: 4,
+                    pointHitRadius: 25,
+                    backgroundColor: 'rgba(50, 50, 90, 0.6)',
+                },
+                ]
+            },
+
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            reverse: false,
+                            min: 0,
+                            max: 50,
+                        }
+                    }]
+                },
+                dragData: true,
+
+                onDrag: function (e, datasetIndex, index, value) {
+                    e.target.style.cursor = 'grabbing'
+
+                    var numPoints = agedistChart.data.datasets[datasetIndex].data.length - 1
+                    var diff = agedistChart.data.datasets[datasetIndex].data.reduce(function (a, v, idx) { val = parseFloat(v); if (val <= 0) { numPoints-- } return a += parseFloat(v) || 0 }, 0) - 100;
+                    if (diff < 0) numPoints = agedistChart.data.datasets[datasetIndex].data.length - 1;
+                    var d = diff / numPoints
+
+                    agedistChart.data.datasets[datasetIndex].data = agedistChart.data.datasets[datasetIndex].data.map(function (val, idx) {
+                        if (idx == index || (diff > 0 && val <= 0)) {
+                            return val;
+                        }
+                        numPoints--;
+                        if (val - d < 0) { diff -= (val - d) / numPoints; return 0 }
+                        return val - d
+                    })
+                },
+                onDragEnd: function (e, datasetIndex, index, value) {
+                    e.target.style.cursor = 'default'
+
+                    var numPoints = agedistChart.data.datasets[datasetIndex].data.length
+                    var diff = agedistChart.data.datasets[datasetIndex].data.reduce(function (a, v, idx) { val = parseFloat(v); if (val <= 0) { numPoints-- } return a += parseFloat(v) || 0 }, 0) - 100;
+                    if (diff < 0) numPoints = agedistChart.data.datasets[datasetIndex].data.length;
+                    var d = diff / numPoints
+
+                    agedistChart.data.datasets[datasetIndex].data = agedistChart.data.datasets[datasetIndex].data.map(function (val, idx) {
+                        if (diff > 0 && val <= 0) return val;
+                        numPoints--;
+                        if (val - d < 0) { diff -= (val - d) / numPoints; return 0 }
+                        return val - d
+                    })
+
+                    if (Math.max(...agedistChart.data.datasets[datasetIndex].data) > agedistChart.options.scales.yAxes[0].ticks.max - 5 && agedistChart.options.scales.yAxes[0].ticks.max < 100) {
+                        agedistChart.options.scales.yAxes[0].ticks.max += 10
+                        agedistChart.update();
+                    }
+
+                    // Calculate and set the values
+                    setAgeDistPercents(agedistChart.data.datasets[datasetIndex].data)
+                },
+                hover: {
+                    onHover: function (e) {
+                        const point = this.getElementAtEvent(e)
+                        if (point.length) e.target.style.cursor = 'grab'
+                        else e.target.style.cursor = 'default'
+                    }
+                }
+            }
+        });
+</script>

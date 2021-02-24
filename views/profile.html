@@ -1,0 +1,104 @@
+<div class="row py-5">
+
+    <div class="col-3"></div>
+
+
+    <div class="col-6 white-bkgd">
+
+        <!-- Profile form -->
+        <h3 class="page-header text-center">Profile</h3>
+
+        <form id="updateProfileForm">
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="firstname">Firstname</label>
+                    <input type="text" class="form-control" name="firstname" value="{{.Firstname}}" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="surname">Surname</label>
+                    <input type="text" class="form-control" name="surname" value="{{.Surname}}" required>
+                </div>
+            </div>
+
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" name="username" value="{{.Username}}" readonly>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" name="email" value="{{.Email}}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" class="form-control" name="location" value="{{.Location}}" required>
+            </div>
+        </form>
+
+        <div class="alert alert-danger collapse" id="updateAlert" role="alert"></div>
+
+        <div class="text-center">
+            <button onclick="update();" id="updateButton" class="btn btn-main">Update</button>
+        </div>
+
+        <!-- divider -->
+        <div class="page-divider"></div>
+
+        <!-- Password form -->
+
+        <h3 class="page-header text-center">Change Password</h3>
+
+        <form id="changePasswordForm">
+
+            <div class="form-group">
+                <label for="oldpassword">Old Password</label>
+                <input type="password" class="form-control" name="oldpassword" placeholder="Old Password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="newpassword">New Password</label>
+                <input type="password" class="form-control" id="newPassword" name="newpassword"
+                    placeholder="New Password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="newpassword">Re-Enter New Password</label>
+                <input type="password" class="form-control" name="newpassword2" placeholder="Re-Enter New Password"
+                    required>
+            </div>
+
+        </form>
+
+        <div class="alert alert-danger collapse" id="changePasswordAlert" role="alert"></div>
+
+        <div class="text-center">
+            <button onclick="changePassword();" id="changePasswordButton" class="btn btn-main">Change Password</button>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function update() {
+        SubmitForm('/updateprofile', '#updateProfileForm', '#updateButton', '#updateAlert', 'Update', 'Updating');
+    }
+
+
+    // Rules for form
+    $('#changePasswordForm').validate({
+        rules: {
+            newpassword2: {
+                equalTo: "#newPassword"
+            }
+        }
+    })
+
+    function changePassword() {
+        SubmitForm('/updatepassword', '#changePasswordForm', '#changePasswordButton', '#changePasswordAlert', 'Change Password', 'Changing');
+    }
+</script>

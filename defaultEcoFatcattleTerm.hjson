@@ -1,0 +1,69 @@
+{
+
+	// hjson file for a fatcattle index
+
+	
+	saleEndpoint: fatcattle
+
+        // Traits in the index
+        indexComponents: [
+                WW,D
+		YW,D
+		FI,D
+		CD,D
+		HCW,D
+        ]
+
+	// Prices of sales
+	traitSexPricePerCwt: [
+FC,S,0,9999,110
+FC,F,0,9999,110
+MW,C,0,9999,60
+	]
+
+	// The discount Rate
+	discountRate: .00
+
+	// Feedlot feed cost $/lb DM
+	feedlotFeedCost: .08
+
+	// Number of days on feed in a feedlot
+	daysOnFeed: 140.
+
+	// Number of days to background
+	backgroundDays: 0
+
+	// AUM $ costs per month where the first number is cost
+	// in January and the last is the cost of an AUM in December
+	aumCost: [
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+		24.
+	]
+
+        // Background Aum Costs per month starting with January
+        backgroundAumCost: [
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+                24.
+        ]
+}
+

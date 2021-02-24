@@ -1,0 +1,134 @@
+<div class="row" style="margin-top: 20vh;">
+
+
+
+    <div class="col-5"></div>
+
+    <div class="col-2 text-center white-bkgd">
+
+        <h3 class="page-header text-center pb-3">Sign in</h3>
+
+        <form id="signinForm">
+            <div class="form-group">
+                <input type="text" placeholder="Username" name="username" class="form-control" autofocus required>
+            </div>
+            <div class="form-group">
+                <input type="password" placeholder="Password" name="password" class="form-control" required>
+            </div>
+
+
+            <div class="alert alert-danger collapse" id="signinAlert" role="alert"></div>
+        </form>
+
+        <div class="text-center">
+            <button class="btn btn-main" id="signinButton" onclick="signin()">Sign
+                in</button>
+        </div>
+        <small>No account? <a class="default-link" data-toggle="modal" data-target="#registerModal">Register</a></small>
+
+    </div>
+
+
+</div>
+
+
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="margin: 50px;">
+            <div class="modal-header">
+                <h5 class="page-header">Register</h5>
+            </div>
+
+
+            <div class="modal-body">
+                <form id="registerForm">
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="firstname">Firstname</label>
+                            <input type="text" class="form-control" name="firstname" placeholder="Firstname" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="surname">Surname</label>
+                            <input type="text" class="form-control" name="surname" placeholder="Surname" required>
+                        </div>
+                    </div>
+
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" name="username" placeholder="Username" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" name="email" placeholder="Email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" class="form-control" name="location" placeholder="Location" required>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password"
+                            required>
+                        <input type="password" class="form-control mt-2" name="password2" placeholder="Confirm Password"
+                            required>
+                    </div>
+
+                </form>
+
+                <div class="alert alert-danger collapse" id="registerAlert" role="alert"></div>
+
+                <div class="text-center">
+                    <button class="btn btn-main" id="registerButton"
+                        onclick="register()">Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    // Rules for form
+    $('#registerForm').validate({
+        rules: {
+            password2: {
+                equalTo: "#password"
+            }
+        }
+    })
+
+    function signin() {
+        SubmitForm('/signin', '#signinForm', '#signinButton', '#signinAlert', 'Sign in', 'Signing in').done(function () {
+            window.location.href = "/"
+        });
+    }
+
+    // Add an event listener so you can just press enter and submit form
+    $(document).ready(function() {
+          $('#signinForm input').keyup(function(event) {
+            if (event.which === 13) {
+              signin()
+           }
+        });
+    });
+
+    function register(){
+        SubmitForm('/register', '#registerForm', '#registerButton', '#registerAlert', 'Register', 'Registering').done(function () {
+            window.location.href = "/"
+        });
+    }
+
+    // {{ if .ShowRegister }}
+    $(registerModal).modal('show');
+    // {{ end }}
+
+</script>

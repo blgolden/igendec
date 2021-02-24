@@ -1,0 +1,7 @@
+awk -F , 'NR==1{print $0}; NR>1{
+		$1 = "Lot_" NR
+		for( i=1; i<NF; i++ )
+			printf "%s,", $i
+		printf "%s\n", $NF
+	}' uploadminert.csv >minert.csv
+		

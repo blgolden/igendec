@@ -1,0 +1,145 @@
+<!-- NOTE: This file is unique -  it is used multiple times.
+As a result most identifiers will have {{.ID}} tagged on the end to make ids unique in the DOM
+Doesn't change anything -->
+
+{{define "herdcomp"}}
+<tr class="herd-comp">
+    <td><input type="number" class="form-control herd-comp-num-animals"
+            value="{{if not .Count}}0{{else}}{{.Count}}{{end}}" min="1" max="100" required></td>
+    <td><select class="form-control breed-select"
+            data-val="{{if not .BreedComp}}{{else}}{{.BreedComp}}{{end}}"></select></td>
+    <td class="delete-icon"><i class="fa fa-minus"></i></td>
+</tr>
+{{end}}
+
+
+<!-- Row holding Age Range input and Total Cows counter -->
+<div class="form-row" style="justify-content: space-between;">
+    <div class="form-group col-4"></div>
+    <div class="form-group col-3" style="text-align: center;">
+        <label style="width: 100%;">Percent &nbsp; <i class="fa fa-question-circle" aria-hidden="true"
+                data-toggle="tooltip" title="Percent of animals. Must sum to 100%."></i>
+        </label>
+        <label class="counter" style="width: 100%;"><span id="selectedCowCount{{.ID}}">0</span> / <span>100</span></label>
+    </div>
+</div>
+
+
+<!-- Alerts for user-->
+<div class="alert alert-danger collapse" id="herdCompAlert{{.ID}}" role="alert"></div>
+<div class="alert alert-danger collapse" id="herdCompValidateAlert{{.ID}}" role="alert"></div>
+
+
+<!-- List of compositions -->
+<form id="herdCompForm{{.ID}}" class="row" autocomplete="off">
+
+    <table class="table table-sm table-bordered col-6" style="margin: auto;">
+        <thead class="thead-dark">
+            <!-- Header - has some tool tips in there to let the user know the point of certain columns -->
+            <tr>
+                <th scope="col" style="width: 45%;"><b>Percent</b> <i class="fa fa-question-circle float-right"
+                        aria-hidden="true" data-toggle="tooltip"
+                        title="Pertentage of animals with the given breed. This column should sum to 100%"></i>
+                </th>
+                <th scope="col"><b>Breed</b> <i class="fa fa-question-circle float-right" aria-hidden="true"
+                        data-toggle="tooltip"
+                        title="The breed of this group of cows. Breeds are defined on the Breeds page"></i>
+                </th>
+                <th scope="col" style="width: 40px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Values}}
+            {{template "herdcomp" .}}
+            {{end}}
+            <tr>
+                <td colspan="3" class="text-center clickable-cell" id="herdCompAddComp{{.ID}}">
+                    <b>+</b>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+
+</form>
+
+
+<!-- Next button and server alert -->
+<div class=" alert alert-danger collapse" id="herdCompServerAlert{{.ID}}" role="alert"></div>
+<div class="text-center mt-5">
+    <button class="btn btn-main" id="herdCompNextButton{{.ID}}">Save & Next</button>
+</div>
+
+
+
+<script>
+    $('#herdCompForm{{.ID}}').validate({
+        errorLabelContainer: '#herdCompValidateAlert{{.ID}}',
+        errorClass: 'error-border',
+    })
+
+    // Validate the page
+    $('#herdCompNextButton{{.ID}}').on('click', function () {
+        if (!$('#herdCompForm{{.ID}}').valid())
+            return
+
+        var breedCompositions = []
+        var total = 0
+        var missingBreeds = false
+
+        $("#herdCompForm{{.ID}} .herd-comp").each(function (i) {
+            percent = parseInt($(this).find(".herd-comp-num-animals").val()) || 0
+            total += percent
+            breedCompositions[i * 2] = percent
+            encoded = $(this).find(".breed-select").val()
+            if (!encoded) missingBreeds = true;
+            breedCompositions[i * 2 + 1] = encoded
+        })
+
+        if (missingBreeds){
+            $('#herdCompAlert{{.ID}}').text('Please select all breeds')
+            $('#herdCompAlert{{.ID}}').collapse('show')
+            return
+        }
+        if (total != 100) {
+            $('#herdCompAlert{{.ID}}').text('Percent should sum to 100%')
+            $('#herdCompAlert{{.ID}}').collapse('show')
+            return
+        }
+        $('#herdCompAlert{{.ID}}').collapse('hide')
+
+        UpdateCreateValues({ {{.ID }} : breedCompositions }, '#herdCompNextButton{{.ID}}', '#herdCompServerAlert{{.ID}}')
+    })
+
+
+    // Adds a composition to the end of the breed composition list
+    $('#herdCompAddComp{{.ID}}').on('click', function () {
+        $(this).parent().before(`{{template "herdcomp"}}`)
+        UpdateBreedSelectElements(ValidateBreedsAccordion())
+    })
+
+    $('#herdCompForm{{.ID}}').on('click', '.delete-icon', function(){
+        $(this).parent().remove()
+        $('#herdCompForm{{.ID}} .herd-comp-num-animals:first').trigger('blur')
+    })
+
+    // When this page loads, touch one of the counters to trigger an update
+    $('a[data-toggle="list"][data-target="#herdcomp"], a[data-toggle="list"][data-target="#bullcomp"]').on('shown.bs.tab', function (e) {
+        UpdateBreedSelectElements(ValidateBreedsAccordion())
+        $('#herdCompForm{{.ID}} .herd-comp-num-animals:first').trigger('blur')
+    })
+
+
+    // Update cow count counter when values change
+    $(document).on('change blur', '#herdCompForm{{.ID}} .herd-comp-num-animals', function () {
+        var total = 0
+        $('#herdCompForm{{.ID}} .herd-comp-num-animals').each(function () {
+            total += parseInt($(this).val()) || 0
+        })
+        $('#selectedCowCount{{.ID}}').text(total)
+        if (total != 100)
+            $('#selectedCowCount{{.ID}}').parent().css('color', 'red')
+        else
+            $('#selectedCowCount{{.ID}}').parent().css('color', 'white')
+    })
+</script>

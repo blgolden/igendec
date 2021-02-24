@@ -1,0 +1,274 @@
+<!-- Template for golang - if given an argument will try match it with one of the values and select it -->
+
+<!-- HTML template for a single row -->
+
+{{define "breed-table-row"}}
+<tr class="breed-element-row">
+    <td scope="col" class="breed-element">
+        <select class="form-control breed-element-select">
+            {{ range .Breeds }}
+            <option value="{{.}}" {{if eq $.Breed . }} selected {{end}}>{{.}}</option>
+            {{ end }}
+        </select>
+    </td>
+    <td scope="col">
+        <input type="number" min="1" max="100" class="form-control breed-percent"
+            value='{{if not . }}0{{else}}{{.Prop}}{{end}}' required>
+    </td>
+    <td class="delete-icon" onclick="$(this).parent().remove();"><i class="fa fa-minus"></i>
+    </td>
+</tr>
+{{end}}
+
+<!-- HTML template for an accordion -->
+{{define "breed-accordion"}}
+<div class="card breed-comp-card">
+    <div class="card-header collapse-next" data-target="collapse-next">
+        <label class="card-header-text">{{if not .}}Unnamed{{else}}{{.Name}}{{end}}</label> <i
+            class="fa fa-minus float-right delete-icon" onclick="RemoveBreedAccordion(this);"></i>
+    </div>
+
+    <div class="collapse" data-parent="#breedsAccordion">
+        <div class="card-body">
+            <input type="text" class="form-control mb-3 breed-type-name" placeholder="Composition Name"
+                value="{{if not .Name}}Unnamed{{else}}{{.Name}}{{end}}" maxlength="24" required>
+            <table class="table table-sm" style="margin: auto;">
+                <thead class="strong-table-header">
+                    <tr>
+                        <th scope="col"><b>Breed</b></th>
+                        <th scope="col"><b>Breed Percentage</b></th>
+                        <th scope="col" style="width: 40px"></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {{ range .BreedProps }} {{template "breed-table-row" .}} {{end}}
+
+                    <tr>
+                        <td colspan="3" class="text-center clickable-cell" onclick="AddBreedRow(this);">
+                            <b>+</b>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{end}}
+
+
+
+
+
+
+<!-- Alerts -->
+<div class="alert alert-danger collapse" id="breedCompositionsAlert" role="alert"></div>
+<div class="alert alert-danger collapse" id="breedCompositionsValidatorAlert" role="alert"></div>
+
+<!-- Accordion to keep the compositions -->
+<div class="row" style="justify-content:space-evenly;">
+    <div class="accordion col-6" id="breedsAccordion">
+        <form id="breedCompositionsForm">
+
+            {{range .BreedCompositions }}
+            {{template "breed-accordion" .}}
+            {{end}}
+
+        </form>
+        <button class="form-control" onclick="AddBreedAccordion(this)">Add Composition</button>
+    </div>
+</div>
+
+
+<!-- Server alert and next button -->
+<div class="alert alert-danger collapse" id="breedCompositionsServerAlert" role="alert"></div>
+<div class="text-center mt-5">
+    <button class="btn btn-main" id="breedCompNextButton">Save & Next</button>
+</div>
+
+<b>Steps for specifying breeds:</b>
+<div class="help">
+    1. Specify here, breeds and breed crosses in your herd and the bulls to be considered.<br>
+    2. Go to the Herd Composition page and select among the compositions you have created on this page.<br>
+    3. Go to the Bull Composition page and select among the compositions you have created on this page.<br>
+    4. Go to the Calf Composition page to describe your current yea's calves.<br><br>
+
+    <p>If you want to add a breed composition choice, return to this page.</p>
+
+   <center>
+	   <b>Video instructions:</b><br>
+	   For better viewing, click on video and click on the play arrow (lower left) to play in full screen.<br>
+	   Press the <b>Esc</b> key to return to this screen.<br>
+	<video controls="controls" id="videoplay" width="401">
+   		<source src="/video/prototypeBreeds.mp4" type="video/mp4">
+	</video>
+   </center>
+<script type="text/javascript">
+	var myVideo = document.getElementById('videoplay');
+	myVideo.addEventListener('click', function () {
+		if (myVideo.paused) {
+			myVideo.play();
+			if (myVideo.requestFullscreen) {
+    				myVideo.requestFullscreen();
+			}
+			else if (myVideo.msRequestFullscreen) {
+    				myVideo.msRequestFullscreen();
+			}
+			else if (myVideo.mozRequestFullScreen) {
+    				myVideo.mozRequestFullScreen();
+			}
+			else if (myVideo.webkitRequestFullScreen) {
+    				myVideo.webkitRequestFullScreen();
+			}
+			myVideo.play();
+		}
+		else {
+			myVideo.pause();
+		}
+	}, false);
+</script>
+</div>
+
+<script>
+    // JQuery validate, sets the options for validation of this page
+    $('#breedCompositionsForm').validate({
+        errorLabelContainer: "#breedCompositionsValidatorAlert",
+        errorClass: 'error-border',
+    })
+
+
+    // Validate the page - called when the user presses the Save & Next button
+    $('#breedCompNextButton').on('click', function () {
+        if (!$('#breedCompositionsForm').valid())
+            return
+
+
+        // Check breed compositions are valid
+        var comps = ValidateBreedsAccordion()
+        if (!comps)
+            return
+
+        // Update breed select elements
+        UpdateBreedSelectElements(comps)
+
+        // Hide any error messages
+        $('#breedCompositionsAlert').collapse('hide')
+
+        // Valid - send changes to server
+        UpdateCreateValues({ BreedCompositions: comps }, '#breedCompNextButton', '#breedCompositionsServerAlert')
+    })
+
+
+
+
+    // Adds a breed row to a table
+    // Tightly coupled with structure of HTML - only call with the button
+    function AddBreedRow(el) {
+        $(el).parent().before($('#breedCompositionsForm').find('.breed-element-row:first').clone())
+        $(el).parent().prev().find('.breed-percent').val(0)
+        let select = $(el).parent().prev().find('.breed-element-select')
+        select.val(select.children().first().val())
+    }
+
+    // Adds a breed card to the accordion. Clones the last child.
+    function AddBreedAccordion() {
+        $('#breedCompositionsForm').append($('#breedCompositionsForm').children().last().clone())
+        $('#breedCompositionsForm').children().last().find(".card-header").click()
+        $('#breedCompositionsForm').children().last().find(".breed-type-name:first").focus().select()
+    }
+
+    // Removes a breed card from the accordion. Can't remove the last one.
+    function RemoveBreedAccordion(el) {
+        if ($('#breedCompositionsForm').children().length > 1)
+            $(el).closest('.card').remove()
+    }
+
+
+    // ValidateAccordion iterates through all of the cards. If one is invalid it will mark an error
+    // otherwise returns a list that can be used as the data source for any breed-select elements
+    function ValidateBreedsAccordion() {
+        var comps = []
+        var names = new Set();
+        var OK = true
+        $('#breedCompositionsForm').children().each(function () {
+            valid = ValidateBreedComp(this)
+            if (valid) {
+                comps.push(valid);
+                names.add(valid.Name);
+            }
+            else
+                OK = false
+        })
+        if (!OK) return false; // One of the cards failed validation - errors will have been shown in that function
+        else if (names.size != comps.length) { // Names weren't all unique
+            $('#breedCompositionsAlert').text('All composition names should be unique')
+            $('#breedCompositionsAlert').collapse('show')
+            return false;
+        }
+        return comps
+    }
+
+
+    // This takes in a card element and checks the interior table is valid
+    // To be valid, percentages must add to 100 and all the breed types should be unique
+    // If valid, returns formatted string that can be sent to the server, otherwise false
+    function ValidateBreedComp(el) {
+        var percents = [];
+        var breeds = [];
+        var both = [];
+        $(el).find('.breed-element').each(function (i) {
+            percents[i] = $(this).next().children(":first").val();
+            breeds[i] = $(this).find("option:selected").val();
+
+            both[i * 2] = breeds[i];
+            both[i * 2 + 1] = percents[i]
+        })
+
+        // Check percents add to 100
+        if (Math.round(percents.reduce((a, b) => a + parseInt(b) || 0, 0)) != 100) {
+            $(el).addClass("error-border")
+            $('#breedCompositionsAlert').text('Percents should sum to 100')
+            $('#breedCompositionsAlert').collapse('show')
+            return false;
+        }
+        // Check breeds are unique
+        if (new Set(breeds).size !== breeds.length) {
+            $(el).addClass("error-border")
+            $('#breedCompositionsAlert').text('All breeds in card should be unique')
+            $('#breedCompositionsAlert').collapse('show')
+            return false;
+        }
+        $(el).removeClass("error-border")
+
+        // Return the combined array in the proper format
+        return { Name: $(el).find('.breed-type-name').val(), Encoded: both.join(',') }
+    }
+
+    // Call UpdateBreedsAccordion on page loading so that it is never empty
+    $(document).ready(function () { UpdateBreedSelectElements(ValidateBreedsAccordion()) });
+
+    // Updates all the select elements in DOM with class name .breed-select
+    // This function is intended to work across pages (herdcomp.html) and will update select elements there
+    function UpdateBreedSelectElements(comps) {
+        // Update breed-select elements
+        $('select.breed-select').each(function (i, el) {
+            var val = $(el).val() || $(el).data('val')
+            $(el).removeData() // If theres a data-val attribute remove it. It should only be present on load
+            $(el).empty(); // Remove all the elements
+            $(el).append('<option value="" hidden>Select breed... </option>'); // Add a default
+            $.each(comps, function (idx, item) {
+                $(el).append($("<option></option>").attr("value", item.Encoded).text(item.Name));
+            });
+            $(el).children('[value="' + val + '"]').attr('selected','selected');
+        })
+    }
+
+
+
+    // Listens for changes in the text inputs of each card
+    // If there are changes, updates the card header name
+    $(document).on('blur change', '.breed-type-name', function () {
+        $(this).closest(".card").find('.card-header-text').text($(this).val())
+    })
+
+</script>

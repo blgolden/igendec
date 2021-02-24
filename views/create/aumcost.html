@@ -1,0 +1,227 @@
+<!-- Template for an aum cost table element -->
+{{define "aumCostInput"}}
+<td>
+    <div class="input-group">
+        <div class=" input-group-prepend">
+            <span class="input-group-text">$</span>
+        </div>
+        <input type="number" min="0" step="0.01" class="form-control normal-width aumcost-val" value="{{.}}">
+    </div>
+</td>
+{{end}}
+
+<!-- Template for a backgroundAumcost table -->
+{{define "backgroundAumCostInput"}}
+<td>
+    <div class="input-group">
+        <div class=" input-group-prepend">
+            <span class="input-group-text">$</span>
+        </div>
+        <input type="number" min="0" step="0.01" class="form-control normal-width backgroundaumcost-val" value="{{.}}">
+    </div>
+</td>
+{{end}}
+
+
+
+<div class="btn-group btn-group-toggle toggle-tab" data-toggle="buttons">
+    <label class="btn btn-secondary aumcostDisplayToggle active">
+        <input type="radio" name="options" autocomplete="off" checked> Values
+    </label>
+    <label class="btn btn-secondary aumcostDisplayToggle">
+        <input type="radio" name="options" autocomplete="off"> Graph
+    </label>
+</div>
+
+<!-- Row holding Age Range input and Total Cows counter -->
+<div class="form-row" style="justify-content: space-between;">
+    <div class="form-group col-4">
+        <label>Annual Per Cow Cost: <i class="fa fa-question-circle" aria-hidden="true" data-toggle="tooltip"
+                title="Total annual variable cost per cow.  This is mostly feed costs.  This does not include calf variable costs. Do not include costs such as land payments.  You may choose to fill in this value or fill in values for each month."></i></label>
+        <input type="number" class="form-control" min="0" id="aumcost-annual-cost">
+    </div>
+</div>
+
+
+<form id="aumcostForm" class="aumcostDisplay">
+
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col" style="width: 20%">Month</th>
+                <th scope="col">$ per Cow</th>
+                <th scope="col">$ per Backgrounded Calf </th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range $i, $month := .Months}}
+
+            <tr>
+                <td>{{$month}}</td>
+                {{template "aumCostInput" index $.AumCost $i}}
+                {{template "backgroundAumCostInput" index $.BackgroundAumCost $i}}
+            </tr>
+
+            {{end}}
+        </tbody>
+    </table>
+
+</form>
+
+
+<div class="aumcostDisplay" style="display: none;">
+    <canvas id="aumcostChart" style="height: 90%; width: 90%;"></canvas>
+</div>
+
+
+<div class="alert alert-danger collapse" id="aumcostServerAlert" role="alert"></div>
+
+<div class="text-center">
+    <button class="btn btn-main" id="aumcostNextButton">Save & Next</button>
+</div>
+
+
+<script>
+
+    $('#aumcostForm').validate()
+
+    // Validate the page
+    $('#aumcostNextButton').on('click', function () {
+        if (!$('#aumcostForm').valid())
+            return
+
+        UpdateCreateValues({ AumCost: getCosts('.aumcost-val'), BackgroundAumCost: getCosts('.backgroundaumcost-val') }, '#aumcostNextButton', '#aumcostServerAlert')
+    })
+
+    // collect aum costs into array
+    function getCosts(selector) {
+        var costs = []
+        $(selector).each(function (i) { costs[i] = parseFloat($(this).val()) })
+        return costs
+    }
+    function setCosts(selector, costs) {
+        $(selector).each(function (i) { $(this).val(costs[i]) })
+    }
+
+    // When this page loads, set the background cost row on the table to either hidden or shown
+    $('a[data-toggle="list"][data-target="#aumcost"]').on('shown.bs.tab', function (e) {
+        if (GetRunType() == "background" || GetRunType() == "fatcattle" || GetRunType() == "slaughtercattle") $('#aumcostForm table tr > *:nth-child(3)').show();
+        else $('#aumcostForm table tr > *:nth-child(3)').hide();
+
+        updateAumcostChart();
+    })
+
+
+    $('.aumcost-val').on('blur', function () {
+        let total = 0;
+        $('.aumcost-val').each(function () {
+            total += parseFloat($(this).val()) || 0
+        })
+        $('#aumcost-annual-cost').val(total);
+    })
+    $(document).ready(function () { $('.aumcost-val:first').blur() }) // Blur on page load
+
+
+    $('#aumcost-annual-cost').on('blur', function () {
+        let av = (parseFloat($(this).val()) / 12).toFixed(2);
+        $('.aumcost-val').each(function () {
+            $(this).val(av);
+        })
+        updateAumcostChart();
+    })
+
+
+    $('.aumcostDisplayToggle').on('click', function () {
+        if ($(this).hasClass('active')) return;
+        updateAumcostChart();
+        $('.aumcostDisplay').toggle();
+    })
+
+
+
+
+
+
+
+    var aumcostChart = new Chart(document.getElementById('aumcostChart').getContext('2d'),
+        {
+            type: 'line',
+            data: {
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                datasets: [{
+                    label: 'AUM Cost by month',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHitRadius: 25,
+                    borderColor: 'rgba(250, 50, 50, 0.6)',
+                    fill: false,
+                },
+                {
+                    label: 'Background AUM Cost by month',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHitRadius: 25,
+                    borderColor: 'rgba(250, 250, 50, 0.6)',
+                    fill: false,
+                },
+                ]
+            },
+
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            reverse: false,
+                            min: 0,
+                            max: 100,
+                            callback: function (value, index, values) {
+                                return '$' + value;
+                            }
+                        }
+                    }]
+                },
+
+                dragData: true,
+                dragDataRound: 1,
+
+                onDrag: function (e) {
+                    e.target.style.cursor = 'grabbing'
+                },
+                onDragEnd: function (e) {
+                    e.target.style.cursor = 'default'
+                    setCosts('.aumcost-val', aumcostChart.data.datasets[0].data.map((v) => parseFloat(v)))
+                    $('.aumcost-val:first').blur()
+                    setCosts('.backgroundaumcost-val', aumcostChart.data.datasets[1].data.map((v) => parseFloat(v)))
+                },
+                hover: {
+                    onHover: function (e) {
+                        const point = this.getElementAtEvent(e)
+                        if (point.length) e.target.style.cursor = 'grab'
+                        else e.target.style.cursor = 'default'
+                    }
+                }
+            }
+        }
+    );
+
+    // Set the values in the chart when the document is ready
+    // $(document).ready(updateAumcostChart())
+
+    function updateAumcostChart() {
+        aumcostChart.data.datasets[0].data = getCosts('.aumcost-val');
+        max = Math.max(...aumcostChart.data.datasets[0].data)
+        aumcostChart.options.scales.yAxes[0].ticks.max = (Math.ceil(max / 10) + 1) * 10
+
+        if (GetRunType() == "background" || GetRunType() == "fatcattle" || GetRunType() == "slaughtercattle")
+            aumcostChart.data.datasets[1].data = getCosts('.backgroundaumcost-val');
+        bgmax = Math.max(...aumcostChart.data.datasets[1].data);
+        if (bgmax > max) {
+            aumcostChart.options.scales.yAxes[0].ticks.max = (Math.ceil(max / 10) + 1) * 10
+        }
+        else
+            aumcostChart.data.datasets[1].hidden
+
+        aumcostChart.update();
+    }
+
+</script>

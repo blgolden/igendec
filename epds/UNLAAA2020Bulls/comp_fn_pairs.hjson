@@ -1,0 +1,479 @@
+// 
+// 
+
+[
+	{
+		name:Assn
+		header:Assn
+		comment: AAA
+		select:false
+	}
+	{
+		name:ID
+		header:Reg_No.
+		comment:Animals AAA registration number
+		select:true
+	}
+	{
+		name:Name
+		header:Name
+		comment:Name
+		select:false
+	}
+	{
+		name:Birth_Dt
+		header:Birth_Dt
+		comment:Birth date
+		select:false
+	}
+	{
+		name:Sex
+		header:Sex
+		comment:Sex
+		select:false
+	}
+	{
+		name:Tag
+		header:Tag
+		comment:Ear tag
+		select:false
+	}
+	{
+		name:Tattoo
+		header:Tattoo
+		comment:Tattoo
+		select:false
+	}
+	{
+		name:Dam_Assn
+		header:Dam_Assn
+		comment:AAA
+		select:false
+	}
+	{
+		name:Dam_Reg_No.
+		header:Dam_Reg_No.
+		comment:Dam's AAA registration number
+		select:false
+	}
+	{
+		name:Dam_Name
+		header:Dam_Name
+		comment:Dam's name
+		select:false
+	}
+	{
+		name:Sire_Assn
+		header:Sire_Assn
+		comment:AAA
+		select:false
+	}
+	{
+		name:Sire_Reg_No.
+		header:Sire_Reg_No.
+		comment:Sire's registration number
+		select:false
+	}
+	{
+		name:Sire_Name
+		header:Sire_Name
+		comment:Sire's name
+		select:false
+	}
+	{
+		name:"CE,D"
+		header:CED
+		comment:Calving ease EPD
+		select:false
+	}
+	{
+		name:CED_Acc
+		header:CED_Acc
+		comment:CE EPD accuracy
+		select:false
+	}
+	{
+		name:CED_Acc_%_Rank
+		header:CED_Acc_%_Rank
+		comment:CE Accuracy rank
+		select:false
+	}
+	{
+		name:"BW,D"
+		header:BW
+		comment:Birth weight direct EPD
+		select:false
+	}
+	{
+		name:BW_Acc
+		header:BW_Acc
+		comment:Birth weight accuracy
+		select:false
+	}
+	{
+		name:BW_Acc_%_Rank
+		header:BW_Acc_%_Rank
+		comment:BW rank
+		select:false
+	}
+	{
+		name:"WW,D"
+		header:WW
+		comment:Weaning EPD
+		select:false
+	}
+	{
+		name:WW_Acc
+		header:WW_Acc
+		comment:Weaning EPD accuracy
+		select:false
+	}
+	{
+		name:WW_Acc_%_Rank
+		header:WW_Acc_%_Rank
+		comment:WW rank
+		select:false
+	}
+	{
+		name:"YW,D"
+		header:YW
+		comment:Yearling weight EPD
+		select:false
+	}
+	{
+		name:YW_Acc
+		header:YW_Acc
+		comment:YW EPD accuracy
+		select:false
+	}
+	{
+		name:YW_Acc_%_Rank
+		header:YW_Acc_%_Rank
+		comment:YW rank
+		select:false
+	}
+	{
+		name:RADG
+		header:RADG
+		comment:Residual ADG
+		select:false
+	}
+	{
+		name:RADG_Acc
+		header:RADG_Acc
+		comment:Residual ADG Accuracy
+		select:false
+	}
+	{
+		name:RADG_Acc_%_Rank
+		header:RADG_Acc_%_Rank
+		comment:RADG Accuracy
+		select:false
+	}
+	{
+		name:"FI,D"
+		header:DMI
+		comment:Dry matter intake EPD
+		select:false
+	}
+	{
+		name:DMI_Acc
+		header:DMI_Acc
+		comment:DMI Accuracy
+		select:false
+	}
+	{
+		name:DMI_Acc_%_Rank
+		header:DMI_Acc_%_Rank
+		comment:DMI rank
+		select:false
+	}
+	{
+		name:YH
+		header:YH
+		comment:Yearling height EPD
+		select:false
+	}
+	{
+		name:YH_Acc
+		header:YH_Acc
+		comment:YH Accuracy
+		select:false
+	}
+	{
+		name:SC
+		header:SC
+		comment:Scrotal circumference EPD
+		select:false
+	}
+	{
+		name:SC_Acc
+		header:SC_Acc
+		comment:SC Accuracy
+		select:false
+	}
+	{
+		name:Doc
+		header:Doc
+		comment:Docility EPD
+		select:false
+	}
+	{
+		name:Doc_Acc
+		header:Doc_Acc
+		comment:Docility accuracy
+		select:false
+	}
+	{
+		name:Doc_Acc_%_Rank
+		header:Doc_Acc_%_Rank
+		comment:Doc rank
+		select:false
+	}
+	{
+		name:Claw
+		header:Claw
+		comment:Claw EPD
+		select:false
+	}
+	{
+		name:Claw_Acc
+		header:Claw_Acc
+		comment:Claw accuracy
+		select:false
+	}
+	{
+		name:Claw_Acc_%_Rank
+		header:Claw_Acc_%_Rank
+		comment:Claw rank
+		select:false
+	}
+	{
+		name:Angle
+		header:Angle
+		comment:Angle EPD
+		select:false
+	}
+	{
+		name:Angle_Acc
+		header:Angle_Acc
+		comment:Angle accuracy
+		select:false
+	}
+	{
+		name:Angle_Acc_%_Rank
+		header:Angle_Acc_%_Rank
+		comment:Angle rank
+		select:false
+	}
+	{
+		name:"HP,D"
+		header:HP
+		comment:Heifer pregnancy EPD
+		select:false
+	}
+	{
+		name:HP_Acc
+		header:HP_Acc
+		comment:Heifer pregnancy accuracy
+		select:false
+	}
+	{
+		name:HP_Acc_%_Rank
+		header:HP_Acc_%_Rank
+		comment:HP rank
+		select:false
+	}
+	{
+		name:"CE,M"
+		header:CEM
+		comment:Calving ease total maternal EPD
+		select:false
+	}
+	{
+		name:CEM_Acc
+		header:CEM_Acc
+		comment:Calving ease total maternal accuracy
+		select:false
+	}
+	{
+		name:CEM_Acc_%_Rank
+		header:CEM_Acc_%_Rank
+		comment:CEM rank
+		select:false
+	}
+	{
+		name:"WW,M"
+		header:Milk
+		comment:Weaning maternal EPD (milk)
+		select:false
+	}
+	{
+		name:Milk_Acc
+		header:Milk_Acc
+		comment:Weaning maternal accuracy
+		select:false
+	}
+	{
+		name:Milk_Acc_%_Rank
+		header:Milk_Acc_%_Rank
+		comment:Milk rank
+		select:false
+	}
+	{
+		name:MW
+		header:MW
+		comment:Mature weight EPD
+		select:false
+	}
+	{
+		name:MW_Acc
+		header:MW_Acc
+		comment:Mature weight accuracy
+		select:false
+	}
+	{
+		name:MW_Acc_%_Rank
+		header:MW_Acc_%_Rank
+		comment:MW rank
+		select:false
+	}
+	{
+		name:MH
+		header:MH
+		comment:Mature height EPD
+		select:false
+	}
+	{
+		name:MH_Acc
+		header:MH_Acc
+		comment:Mature height accuracy
+		select:false
+	}
+	{
+		name:$EN
+		header:$EN
+		comment:$EN
+		select:false
+	}
+	{
+		name:$EN_%_Rank
+		header:$EN_%_Rank
+		comment:$EN rank
+		select:false
+	}
+	{
+		name:"HCW,D"
+		header:CW
+		comment:Hot carcass weight EPD
+		select:false
+	}
+	{
+		name:CW_Acc
+		header:CW_Acc
+		comment:Hot carcass weight accuracy
+		select:false
+	}
+	{
+		name:CW_Acc_%_Rank
+		header:CW_Acc_%_Rank
+		comment:HCW rank
+		select:false
+	}
+	{
+		name:"MS,D"
+		header:Marb
+		comment:Marbling score EPD
+		select:false
+	}
+	{
+		name:Marb_Acc
+		header:Marb_Acc
+		comment:Marbling score accuracy
+		select:false
+	}
+	{
+		name:Marb_Acc_%_Rank
+		header:Marb_Acc_%_Rank
+		comment:MS rank
+		select:false
+	}
+	{
+		name:"REA,D"
+		header:RE
+		comment:Rib eye area EPD
+		select:false
+	}
+	{
+		name:RE_Acc
+		header:RE_Acc
+		comment:Rib eye area accuracy
+		select:false
+	}
+	{
+		name:RE_Acc_%_Rank
+		header:RE_Acc_%_Rank
+		comment:REA rank
+		select:false
+	}
+	{
+		name:"FAT,D"
+		header:Fat
+		comment:Backfat thickness EPD
+		select:false
+	}
+	{
+		name:Fat_Acc
+		header:Fat_Acc
+		comment:Backfat thickness accuracy
+		select:false
+	}
+	{
+		name:Maternal_Wean_Calf_Value($M)
+		header:Maternal_Wean_Calf_Value($M)
+		comment:$M
+		select:false
+	}
+	{
+		name:Maternal_Wean_Calf_Value($M)_%_Rank
+		header:Maternal_Wean_Calf_Value($M)_%_Rank
+		comment:$M rank
+		select:false
+	}
+	{
+		name:Wean_Value($W)
+		header:Wean_Value($W)
+		comment:$W
+		select:false
+	}
+	{
+		name:Feedlot_Value($F)
+		header:Feedlot_Value($F)
+		comment:$F
+		select:false
+	}
+	{
+		name:Grid_Value_($G)
+		header:Grid_Value_($G)
+		comment:$G
+		select:false
+	}
+	{
+		name:Beef_Value($B)
+		header:Beef_Value($B)
+		comment:$B
+		select:false
+	}
+	{
+		name:Beef_Value($B)_%_Rank
+		header:Beef_Value($B)_%_Rank
+		comment:$B rank
+		select:false
+	}
+	{
+		name:$C
+		header:$C
+		comment:$C
+		select:false
+	}
+]

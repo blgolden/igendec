@@ -1,0 +1,260 @@
+<!-- This page composes all of the fragments in the create/ folder into a UI where the user can select elements for a run -->
+
+<!-- Create page HTML -->
+
+<!-- Set up page with bootstrap grid system -->
+<div class=" row py-5">
+
+    <!-- Options -->
+    <div class="col-3 create-options">
+        <h3 class="page-header text-center">Categories</h3>
+        <div class="list-group" id="create-options-list" role="tablist">
+
+            <a class="list-group-item list-group-item-action active" data-toggle="list" data-target="#general"
+                role="tab">General</a>
+
+            <a class="list-group-item list-group-item-action disabled" data-toggle="list" data-target="#herds"
+                role="tab">Herds</a>
+
+            <a class="list-group-item list-group-item-action disabled" data-toggle="list" data-target="#agedist"
+                role="tab">Cow Age Distribution</a>
+
+            <a class="list-group-item list-group-item-action disabled" data-toggle="list" data-target="#breedcomp"
+                role="tab">Breed Composition</a>
+
+            <a class="list-group-item list-group-item-action disabled indented" data-toggle="list"
+                data-target="#herdcomp" role="tab">Herd Composition</a>
+
+            <a class="list-group-item list-group-item-action disabled indented" data-toggle="list"
+                data-target="#bullcomp" role="tab">Bull Composition</a>
+
+            <a class="list-group-item list-group-item-action disabled indented" data-toggle="list"
+                data-target="#calfcomp" role="tab">Calf Composition</a>
+
+            <a class="list-group-item list-group-item-action disabled" data-toggle="list" data-target="#tsppc"
+                role="tab">Sale Price</a>
+
+
+            <a class="list-group-item list-group-item-action disabled" data-toggle="list" data-target="#aumcost"
+                role="tab">Costs</a>
+
+            <a class="list-group-item list-group-item-action disabled" data-toggle="list" data-target="#advanced"
+                role="tab">Other Settings</a>
+
+            <a class="list-group-item list-group-item-action disabled" data-toggle="list" data-target="#create"
+                role="tab">Create</a>
+        </div>
+
+    </div>
+
+
+    <!-- Content -->
+    <div class="col-8 white-bkgd">
+        <div class="tab-content">
+
+            <!-- General pane -->
+            <div class="tab-pane active" id="general" role="tabpanel">
+                <h3 class="page-header text-center">General Options</h3>
+
+                {{template "create/general" .}}
+
+            </div>
+
+            <!-- Herds pane -->
+            <div class="tab-pane" id="herds" role="tabpanel">
+                <h3 class="page-header text-center">Cattle Herds</h3>
+
+                {{template "create/herds" .}}
+
+
+            </div>
+
+            <!-- Age Distribution pane -->
+            <div class="tab-pane" id="agedist" role="tabpanel">
+                <h3 class="page-header text-center">Cow Age Distribution</h3>
+
+                {{template "create/agedist" .}}
+
+            </div>
+
+            <!-- Breed Composition pane -->
+            <div class="tab-pane" id="breedcomp" role="tabpanel">
+                <h3 class="page-header text-center">Breed Compositions</h3>
+
+                {{template "create/breedcompositions" .}}
+
+            </div>
+
+            <!-- Herd Breed Composition pane -->
+            <div class="tab-pane" id="herdcomp" role="tabpanel">
+                <h3 class="page-header text-center">Breed Composition of Cows</h3>
+
+                {{template "create/herdcomp" .HerdBreedComposition}}
+
+            </div>
+
+            <!-- Bull composition pane -->
+            <div class="tab-pane" id="bullcomp" role="tabpanel">
+                <h3 class="page-header text-center">Breed Composition Of Bulls Being Considered</h3>
+
+
+                {{template "create/herdcomp" .BullBreedComposition}}
+
+            </div>
+
+
+            <!-- Calf composition pane -->
+            <div class="tab-pane" id="calfcomp" role="tabpanel">
+                <h3 class="page-header text-center">Breed Composition Of Current Calves</h3>
+
+
+                {{template "create/herdcomp" .CurrentCalvesBreedComposition}}
+
+            </div>
+
+
+            <!-- Trait Sex Price per cwt pane -->
+            <div class="tab-pane" id="tsppc" role="tabpanel">
+                <h3 class="page-header text-center">Sale Price per cwt</h3>
+
+
+                {{template "create/traitsexpercwt" .}}
+
+            </div>
+
+            <!-- AUM cost pane -->
+            <div class="tab-pane" id="aumcost" role="tabpanel">
+                <h3 class="page-header text-center">Herd Costs Per Animal</h3>
+
+                {{template "create/aumcost" .}}
+
+            </div>
+
+            <!-- Advanced pane -->
+            <div class="tab-pane" id="advanced" role="tabpanel">
+                <h3 class="page-header text-center">Other Settings</h3>
+
+                {{template "create/advanced" .}}
+
+            </div>
+
+
+
+            <!-- Create run pane -->
+            <div class="tab-pane" id="create" role="tabpanel">
+                <!-- Run name -->
+                <div class="form-group">
+                    <label>Job Name:</label>
+                    <input type="text" id="jobName" class="form-control">
+                    <small class="form-text text-muted">
+                        Name to identify this job by on the jobs page
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="jobComment">Comment:</label>
+                    <textarea class="form-control" id="jobComment" rows="3"></textarea>
+                </div>
+
+                <div class="alert alert-danger collapse" id="createServerFailAlert" role="alert"></div>
+                <div class="text-center">
+                    <button class="btn btn-main" id="submitJobButton">Create</button>
+                    <small class="form-text text-muted">
+                        Jobs will take a few minutes to run. The page will redirect you once complete.
+                    </small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+
+    // Submits a job to the server
+    $('#submitJobButton').on('click', function () {
+        $(this).html('<span class="spinner-border spinner-border-sm"></span> Running')
+
+        return $.ajax({
+            type: 'POST',
+            url: "/create/submit",
+            data: { name: $('#jobName').val(), comment: $('#jobComment').val() },
+        })
+            .done(function (response) {
+                window.location.href = "/jobs?job=" + $('#jobName').val() // Go to jobs page
+            })
+            .always(() => $('#submitJobButton').html('Create')) // Always reset the button to Create
+            .fail(function (xhr, status, error) {
+                if (xhr.responseText) {
+                    $("#createServerFailAlert").text(xhr.responseText) // Display the error
+                    $("#createServerFailAlert").collapse('show')
+                }
+            });
+    })
+
+
+
+
+
+
+    // Sends an ajax request to the server and handles button animation
+    // This will be called by each of the pages when the Save & Next button is clicked.
+    // It is each pages responsibility to organise its data in a way the server will understand
+    function UpdateCreateValues(data, buttonId, alertId) {
+        $(buttonId).html('<span class="spinner-border spinner-border-sm"></span> Saving')
+        $(alertId).collapse('hide')
+
+        return $.ajax({
+            type: 'POST',
+            url: "/create/update",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+        })
+            .always(() => $(buttonId).html('Save & Next'))
+            .done(() => goNext())
+            .fail(function (xhr, status, error) {
+                $(alertId).text(xhr.responseText)
+                $(alertId).collapse('show')
+            });
+    }
+
+
+    // Goes to the next tab
+    // 
+    function goNext() {
+        $('#create-options-list a.active').next().removeClass('disabled')
+        $('#create-options-list a.active').next().tab('show')
+        setCreateTabsEnabledDisabled($('#create-options-list a').index($('#create-options-list a.active')))
+    }
+
+
+    // GetRunType returns the value given for SaleEndpoint on the general page
+    // We need this for other pages as the display might change based on the SaleEndpoint
+    // The only other page that uses at time of writing is aumCost
+    function GetRunType() {
+        return "{{.SaleEndpoint}}"
+    }
+
+
+    // Gets the current index from out cookie and sets the all the tabs to that index as valid
+    // and all the following tabs to disabled. This way if someone changes something earlier
+    // In the process they need to revalidate all the following pages. 
+    // Necessary because the pages share state..
+    function setCreateTabsEnabledDisabled(idx) {
+        idx++;
+
+        // With JQuery select from the first card to idx, removing the 'disabled' class from them
+        $('#create-options-list a').slice(0, idx).each(function (i, el) {
+            $(el).removeClass("disabled")
+        })
+        // Add disabled to following classes
+        $('#create-options-list a').slice(idx).each(function (i, el) {
+            $(el).addClass("disabled")
+        })
+
+        // Show the last card to give the appearance of keeping progress
+        $('#create-options-list a:nth-child(' + idx + ')').tab('show')
+    }
+</script>

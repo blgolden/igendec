@@ -1,0 +1,128 @@
+
+{{define "herdRow"}}
+<tr class="herd-row">
+    <td><input type="text" class="form-control normal-width" value="{{if not .}}unnamed{{else}}{{index . 0}}{{end}}" required></td>
+    <td style="display: none;"><input type="number" class="form-control normal-width herd-cow-count" step="1" min="1"
+            value="{{if not .}}{{else}}{{index . 1}}{{end}}" required></td>
+    <td><input type="text" class="form-control normal-width datepicker" {{if not .}}{{else}}data-initial="{{index . 2}}"{{end}} required>
+    </td>
+    <td><input type="number" class="form-control normal-width" step="1" min="1" max="365"
+            value="{{if not .}}0{{else}}{{index . 3}}{{end}}" required></td>
+    <td><input type="number" class="form-control normal-width" step="0.01" min="0" max="1"
+            value="{{if not .}}0{{else}}{{index . 4}}{{end}}" required> </td>
+    <td><input type="number" class="form-control normal-width" step="0.001" min="0" max="1"
+            value="{{if not .}}0{{else}}{{index . 5}}{{end}}" required></td>
+    <td class="text-center clickable-cell" onclick="deleteHerd($(this).parent())"><i class="fa fa-minus"></i>
+    </td>
+</tr>
+{{end}}
+
+<form id="herdsForm">
+
+    <div class="alert alert-danger collapse" id="herdAlert" role="alert"></div>
+
+
+    <table class="table table-sm table-bordered" id="herdsTable">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Herd Name</th>
+                <th scope="col" style="display: none;">Num Animals</th>
+                <th scope="col">Breeding Start Date</th>
+                <th scope="col">Season Length (days)</th>
+                <th scope="col">Pregnancy Rate
+                    <i class="fa fa-question-circle" aria-hidden="true"
+                    data-toggle="tooltip" title="Average mature cow pregnancy rate in the specified breeding season length"></i></th>
+                <th scope="col">Calving Loss Rate</th>
+                <th scope="col" style="width: 3%;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Herds}}
+            {{template "herdRow" .}}
+            {{end}}
+            <tr style="display: none;" hidden>
+                <td onclick="addHerdRow();" colspan="7" class="clickable-cell" style="text-align: center;"><b
+                        style="font-size: large;">+</b>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</form>
+
+
+
+<div class="alert alert-danger collapse" id="herdsServerAlert" role="alert"></div>
+<div class="text-center">
+    <button class="btn btn-main" id="herdsNextButton">Save & Next</button>
+</div>
+
+
+<script>
+
+    $('#herdsForm').validate({
+        errorLabelContainer: "#herdAlert",
+        errorClass: 'error-border',
+    })
+
+    // Validate the page
+    $('#herdsNextButton').on('click', function () {
+        if (!$('#herdsForm').validate().valid())
+            return
+
+        // Collect the herds
+        var herdsArr = []
+        $(".herd-row").each(function (i) {
+            herdsArr[i] = herdFromRow(this).join(",")
+        })
+
+        UpdateCreateValues({ herds: herdsArr }, '#herdsNextButton', '#herdsServerAlert')
+    })
+
+
+    // returns the herd in an array
+    function herdFromRow(el) {
+        var herd = []
+        $(el).find('input').each(function (i) {
+            if ($(this).hasClass("datepicker"))
+                herd[i] = $.datepicker.formatDate('o', $(this).datepicker("getDate"))
+            else 
+                herd[i] = $(this).val()
+        })
+        return herd
+    }
+
+    // Returns the total cows
+    function totalCows() {
+        var total = 0;
+        $('.herd-cow-count').each(function () {
+            total += parseInt($(this).val()) || 0
+        })
+        return total
+    }
+
+    function deleteHerd(el){
+        if ($('#herdsTable tr').length <= 3) return;
+        $(el).remove()
+    }
+
+    // Parses and sets the dates for all of the datepickers in the herds
+    $(document).ready(function(){$('#herdsTable .datepicker').each(function(){
+        $(this).datepicker().datepicker("setDate", $.datepicker.parseDate('o', $(this).data('initial')))
+    })})
+
+    $.datepicker.setDefaults({
+        dateFormat: "M d",
+        defaultDate: $.datepicker.parseDate('o',1),
+    })
+
+    // Adds a row to the herd table
+    function addHerdRow() {
+        $('#herdsTable tr').last().before(`{{template "herdRow"}}`);
+        $('#herdsTable tr').last().prev().find(".datepicker").datepicker()
+        $('#herdsForm').validate({
+        errorLabelContainer: "#herdAlert",
+        errorClass: 'error-border',
+    })
+    }
+</script>

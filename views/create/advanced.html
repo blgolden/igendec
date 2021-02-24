@@ -1,0 +1,93 @@
+<form id="advancedForm">
+
+    {{if (or ( eq .SaleEndpoint "fatcattle" ) (eq .SaleEndpoint "background" ) (eq .SaleEndpoint "slaughtercattle" )) }}
+    <div class="form-group" id="backgroundDaysGroup">
+        <label>Background Days:</label>
+        <input type="number" name="BackgroundDays" class="form-control" value="{{.BackgroundDays}}" step=".01" required>
+        <small class="form-text text-muted">
+            <!-- Put background days description here -->
+        </small>
+    </div>
+    {{end}}
+
+    {{if (or (eq .SaleEndpoint "fatcattle") (eq .SaleEndpoint "slaughtercattle")) }}
+    <!-- Feedlot feed cost - only for feedlot indexes-->
+    <div class="form-group">
+        <label>Days on feed:</label>
+        <input type="number" name="DaysOnFeed" class="form-control" max="365" min="0" value="{{.DaysOnFeed}}">
+        <small class="form-text text-muted">
+            Number of days the animals are on feed before sale
+        </small>
+    </div>
+
+    <!-- Feedlot days on feed - only for feedlot indexes-->
+    <div class="form-group">
+        <label>Feedlot feed cost:</label>
+        <input type="number" name="FeedlotFeedCost" class="form-control" min="0" step="any"
+            value="{{.FeedlotFeedCost}}">
+        <small class="form-text text-muted">
+            Cost per pound of feed on a dry-matter basis ($/lb) in the feedlot
+        </small>
+    </div>
+
+    {{end}}
+
+
+</form>
+
+<table class="table table-sm table-bordered min">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Trait</th>
+            <th scope="col">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Traits}}
+
+        <tr class="trait-val-pair" {{if not .Display}} style="display: none;" {{end}}>
+            <td class="trait-name">{{.Name}}</td>
+            <td><input class="trait-value form-control" style="width: 12em;" type="number" value="{{.Val}}" step="any">
+            </td>
+        </tr>
+
+        {{end}}
+    </tbody>
+</table>
+
+
+
+<div class="alert alert-danger collapse" id="advancedServerAlert" role="alert"></div>
+<div class="text-center">
+    <button class="btn btn-main" id="advancedNextButton">Save & Next</button>
+</div>
+
+
+<script>
+
+    $('#advancedForm').validate({
+        errorLabelContainer: "#advancedServerAlert",
+        errorClass: 'error-border',
+    })
+
+    // Validate the page
+    $('#advancedNextButton').on('click', function () {
+        if (!$('#advancedForm').valid())
+            return
+
+
+        traits = []
+        $('.trait-val-pair').each(function (idx, el) {
+            var name = $(el).find(".trait-name").text()
+            var val = $(el).find(".trait-value").val()
+            traits.push(name + "," + val)
+        })
+
+
+        // Save the changes to server
+        data = FormToMap('#advancedForm')
+        data.Traits = traits
+        if (data.FeedlotFeedCost) data.FeedlotFeedCost = data.FeedlotFeedCost + "";
+        UpdateCreateValues(data, '#advancedNextButton', '#advancedServerAlert')
+    })
+</script>

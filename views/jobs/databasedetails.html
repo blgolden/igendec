@@ -1,0 +1,71 @@
+<!-- Details for a database object -->
+
+<form action="/jobs/select/database/compare" method="POST">
+
+
+<div class="form-row justify-content-between">
+    <div class="form-group col-md-6">
+        <label>Database Name</label>
+        <input type="text" class="form-control" value="{{.Database.Name}}" name="name" readonly required>
+    </div>
+    <div class="form-group col-md-6">
+        <label>Job to compare</label>
+        <input type="text" class="form-control" value="{{.JobName}}" name="job" readonly required>
+    </div>
+</div>
+
+<label>Description:</label>
+
+<pre class="text-area">{{.Database.Description}}</pre>
+
+
+<div class="page-divider"></div>
+
+
+<h4 class="page-header">Actions</h4>
+
+<div class="form-group">
+    <label>Compare & Download</label>
+    <a style="display: block;" class="btn btn-main form-control normal-width" data-toggle="collapse" data-target="#fieldSelection">Compare</a>
+    
+    <div class="collapse top-border" id="fieldSelection">
+
+        <label><b>Select output fields:</b></label>
+
+
+        <table class="table table-sm table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col" style="width: min-content;">Use</th>
+                    <th scope="col">Field</th>
+                    <th scope="col">Key</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Fields}}        
+                <tr class="field-pair">
+                    <td class="field-select"><input type="checkbox" name="{{.Key}}" {{if .Select}} checked {{end}}></td>
+                    <td>{{.Comment}}</td>
+                    <td>{{.Key}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+
+
+
+
+        <button style="display: block;" class="btn btn-main form-control normal-width">Compare</button>
+
+    </div>
+
+
+    <small class="form-text text-muted">
+        Evaluates the Index for the selected <b>Datase Name</b> and will download the resulting CSV.
+    </small>
+</div>
+
+</form>
+
+
+<div class="alert alert-danger collapse" id="databaseAlert" role="alert"></div>
