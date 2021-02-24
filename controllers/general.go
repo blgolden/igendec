@@ -7,7 +7,7 @@ import (
 	"github.com/blgolden/igendec/logger"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/blgolden/controllers/session"
+	"github.com/blgolden/igendec/controllers/session"
 	"github.com/blgolden/igendec/users"
 )
 

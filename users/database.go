@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gitlab.com/thetasolutionsllc/USDA/igendec/logger"
-	"gitlab.com/thetasolutionsllc/USDA/igendec/params"
+	"github.com/blgolden/igendec/logger"
+	"github.com/blgolden/igendec/params"
 )
 
 var UsersPath string

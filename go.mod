@@ -1,4 +1,4 @@
-module gitlab.com/thetasolutionsllc/USDA/igendec
+module github.com/blgolden/igendec
 
 go 1.14
 
