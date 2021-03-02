@@ -385,4 +385,7 @@ CD,0,730
 		
 	// Optional - write the components of a heifer calving difficulty phenotype for debugging
 	//CDPhenotypeFile: cdPhenotype
+
+	// Optional - write out each animals carcass data
+	//CarcassPhenotypeFile: carcassPhenotype
 }

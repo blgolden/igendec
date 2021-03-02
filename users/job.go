@@ -61,12 +61,13 @@ var (
 
 // Job holds information on a job run through create page
 type Job struct {
-	user     *User
-	Name     string
-	Status   JobStatus
-	Endpoint string
-	Output   []IndexElement `json:"indexElement"`
-	Comment  string
+	user           *User
+	Name           string
+	Status         JobStatus
+	Endpoint       string
+	Output         []IndexElement `json:"indexElement"`
+	Comment        string
+	TargetDatabase string
 }
 
 // IndexElement holds the details of a trait thats output from iGenDec
@@ -160,14 +161,18 @@ func (job *Job) Zip() ([]byte, error) {
 func (job *Job) saveParams(ip *params.MasterParams, ep *params.EcoParams) error {
 	data, err := ip.Bytes()
 	if err != nil {
-		return err
+		return fmt.Errorf("encoding master params: %w", err)
 	}
-	if err = database.SetJobFile(job.user.Username, job.Name, FileMasterFilename, data); err != nil {
-		return err
+	if err := os.WriteFile(database.GetJobFilename(job.user.Username, job.Name, FileMasterFilename), data, 0755); err != nil {
+		return fmt.Errorf("writing master params: %w", err)
 	}
+
 	data, err = ep.Bytes()
 	if err != nil {
-		return err
+		return fmt.Errorf("encoding eco params: %w", err)
 	}
-	return database.SetJobFile(job.user.Username, job.Name, FileEcoFilename, data)
+	if err := os.WriteFile(database.GetJobFilename(job.user.Username, job.Name, FileEcoFilename), data, 0755); err != nil {
+		return fmt.Errorf("writing eco params: %w", err)
+	}
+	return nil
 }

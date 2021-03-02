@@ -164,7 +164,7 @@ func (u *User) GetJob(name string) (*Job, error) {
 
 	// We don't mind if this can't be parsed - as we expect a failed job not to have this
 	// file, or for it to be empty
-	data, err := database.GetJobFile(u.Username, name, FileJobOutput)
+	data, err := os.ReadFile(database.GetJobFilename(u.Username, name, FileJobOutput))
 	if err == nil {
 		j, err = parseJob(bytes.NewBuffer(data))
 		if err != nil {
@@ -177,6 +177,7 @@ func (u *User) GetJob(name string) (*Job, error) {
 	}
 
 	j.Comment = ip.Comment
+	j.TargetDatabase = ip.TargetDatabase
 	j.Endpoint = ep.SaleEndpoint
 	j.Name = name
 	j.user = u
@@ -215,48 +216,31 @@ func (u *User) DeleteJob(name string) error {
 // GetJobParams will return the parameters used in the given job
 // Will return error if the job doesn't exist or parameter files can't be loaded
 func (u *User) GetJobParams(name string) (*params.MasterParams, *params.EcoParams, error) {
-	data, err := database.GetJobFile(u.Username, name, FileMasterFilename)
+	mp, err := params.MasterParamsFromFile(database.GetJobFilename(u.Username, name, FileMasterFilename))
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("reading master params: %w", err)
 	}
-	mp, err := params.MasterParamsFromReader(bytes.NewBuffer(data))
+	ep, err := params.EcoParamsFromFile(database.GetJobFilename(u.Username, name, FileEcoFilename))
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("reading eco params: %w", err)
 	}
-	data, err = database.GetJobFile(u.Username, name, FileEcoFilename)
-	if err != nil {
-		return nil, nil, err
-	}
-	ep, err := params.EcoParamsFromReader(bytes.NewBuffer(data))
-	if err != nil {
-		return nil, nil, err
-	}
-
 	return mp, ep, nil
 }
 
 // SetJobParamsAsActive will set this jobs indexparams and ecoparams as the active index/eco params
 func (u *User) SetJobParamsAsActive(name string) error {
-	data, err := database.GetJobFile(u.Username, name, FileMasterFilename)
+	ip, ep, err := u.GetJobParams(name)
 	if err != nil {
 		return err
 	}
-	ip, err := params.MasterParamsFromReader(bytes.NewBuffer(data))
-	if err != nil {
-		return err
-	}
-	data, err = database.GetJobFile(u.Username, name, FileEcoFilename)
-	if err != nil {
-		return err
-	}
-	ep, err := params.EcoParamsFromReader(bytes.NewBuffer(data))
-	if err != nil {
-		return err
-	}
+
 	if err = database.SetMasterParams(u.Username, ip); err != nil {
-		return err
+		return fmt.Errorf("writing master params: %w", err)
 	}
-	return database.SetEcoParams(u.Username, ep)
+	if err = database.SetEcoParams(u.Username, ep); err != nil {
+		return fmt.Errorf("writing eco params: %w", err)
+	}
+	return nil
 }
 
 // String returns the representation of a user for debugging

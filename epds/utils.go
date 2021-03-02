@@ -129,6 +129,23 @@ func (db *Database) FieldSlice() []Field {
 	return append(slice, subslice...)
 }
 
+// TraitKeys returns the trait keys this database has fields for
+func (db *Database) TraitKeys(set []string) []string {
+	var keys []string
+	s := make(map[string]bool, len(set))
+	for _, id := range set {
+		s[id] = true
+	}
+	for _, v := range params.TraitMap {
+		_, ok1 := db.Xref[v.Short]
+		_, ok2 := db.Xref[v.Display]
+		if (ok1 || ok2) && (s[v.Short] || s[v.Display]) {
+			keys = append(keys, v.Short)
+		}
+	}
+	return keys
+}
+
 // CompareJob will take in a job and run it against the database
 // and return a reader which has a formatted CSV, which has the jobs output
 // run against it
@@ -209,7 +226,6 @@ func (db *Database) CompareJob(job *users.Job, fieldNames []string) (*bytes.Buff
 		// Go through the components that we score a bull by and
 		// build the score field
 		for _, ic := range components {
-			fmt.Println("LOC 1", tokens[0], ic.idx, tokens[ic.idx])
 			val, err := strconv.ParseFloat(tokens[ic.idx], 64)
 			if err != nil {
 				return nil, fmt.Errorf("converting field %s to float", tokens[ic.idx])
@@ -286,7 +302,6 @@ func (db *Database) loadXref() error {
 		}
 	}
 
-	// // Set the xref internally and return happy days
 	db.Xref = xref
 	return nil
 }

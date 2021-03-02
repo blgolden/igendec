@@ -9,7 +9,7 @@ do
 	then
 		go run web.go -p 3000 -a 10.11.13.7 -u /tmp/igendecDB 2>&1 | tee log.$L
 	else
-		go run web.go -p 3000 -a localhost -u $HOME/tmp/igendecDB 2>&1 | tee log.$L
+		go run web.go -p 3000 -a localhost -u /home/bgolden/tmp/igendecDB 2>&1 | tee log.$L
 	fi
 	
 done

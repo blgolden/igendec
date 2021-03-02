@@ -6,7 +6,7 @@
         <input type="text" placeholder="Filter..." class="filter form-control" data-target="#databaseList a">
         <div class="list-group" id="databaseList">
             {{range .Databases}}
-            <a class="list-group-item">{{.}}</a>
+            <a class="list-group-item" data-id="{{.}}">{{.}}</a>
             {{end}}
         </div>
     </div>
@@ -19,19 +19,21 @@
 
 <script>
     // When the page loads, click the first list item to load the job from the server
-    $(document).ready(function () { $('#databaseList a:first').click() })
+    $(document).ready(function () { $('#databaseList a[data-id="{{.Selected}}"]').click() })
+
+
 
     // Event listener on the jobs
     // Loads in job data from server into #jobsContent div
     $('#databaseList a').on('click', function () {
         // Set loading symbol
         $("#databaseContent").html(`<div class="d-flex justify-content-center mt-5 pt-5"><div class="spinner-border"></div></div>`)
-        $("#databaseContent").load("/jobs/select/database?name=" + $(this).text() + "&job={{.Job}}") 
+        $("#databaseContent").load("/jobs/select/database?name=" + $(this).text() + "&job={{.Job}}")
     })
 
-    function CompareJobToDatabase(btn, dbName, jobName){
+    function CompareJobToDatabase(btn, dbName, jobName) {
         $(btn).html('<span class="spinner-border spinner-border-sm"></span>')
-        window.location.href = "/jobs/select/database/compare?name="+dbName+"&job="+jobName
+        window.location.href = "/jobs/select/database/compare?name=" + dbName + "&job=" + jobName
         $(btn).html('Compare')
     }
 </script>

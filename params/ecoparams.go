@@ -3,7 +3,6 @@ package params
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -29,19 +28,6 @@ type EcoParams struct {
 	FeedlotFeedCost     string      `json:"feedlotFeedCost"`
 	GridPremiums        []string    `json:"gridPremiums"`
 	ProportionInProgram string      `json:"proportionInProgram"`
-}
-
-// EcoParamsFromReader parses the content in the reader into ecoparams struct
-func EcoParamsFromReader(r io.Reader) (*EcoParams, error) {
-	bytes, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-	var ep = &EcoParams{}
-	if err = json.Unmarshal(bytes, ep); err != nil {
-		return nil, err
-	}
-	return ep, nil
 }
 
 // Bytes returns the marshalled index params
@@ -148,7 +134,11 @@ func DefaultEcoParams(endpoint Endpoint, indextype IndexType) (*EcoParams, error
 	default:
 		return nil, fmt.Errorf("endpoint %s is not supported", endpoint)
 	}
+	return EcoParamsFromFile(filename)
+}
 
+// EcoParamsFromFile reads in an eco parameter file
+func EcoParamsFromFile(filename string) (*EcoParams, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -177,35 +167,9 @@ func DefaultEcoParams(endpoint Endpoint, indextype IndexType) (*EcoParams, error
 		return nil, fmt.Errorf("expecting either json or hjson file, have %s", filename)
 	}
 
+	for idx, v := range ep.IndexComponents {
+		ep.IndexComponents[idx] = strings.ReplaceAll(v, " ", "")
+	}
+
 	return ep, nil
 }
-
-// 	return &EcoParams{
-// 		SaleEndpoint: "weaning",
-// 		IndexComponents: []string{
-// 			"WW, D",
-// 			"WW, M",
-// 			"MW, D",
-// 			"STAY, D",
-// 			"CD, D",
-// 			"CD, M",
-// 			"HP, D"},
-// 		TraitSexPricePerCwt: []string{
-// 			"WW,S,0,400,185",
-// 			"WW,S,400,500,185",
-// 			"WW,S,500,600,188",
-// 			"WW,S,600,700,168",
-// 			"WW,S,700,800,160",
-// 			"WW,S,800,9999,160",
-// 			"WW,F,0,400,178",
-// 			"WW,F,400,500,178",
-// 			"WW,F,500,600,165",
-// 			"WW,F,600,700,135",
-// 			"WW,F,700,9999,135",
-// 			"MW,C,0,9999,60"},
-// 		DiscountRate:      "0",
-// 		AumCost:           [12]float64{24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24},
-// 		BackgroundAumCost: [12]float64{24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24},
-// 		BackgroundDays:    60,
-// 	}
-// }

@@ -92,8 +92,19 @@ func (h *Handler) JobsSelect(c *fiber.Ctx) error {
 	if c.Query("job") == "" {
 		return h.NotFound(c)
 	}
-
-	return h.RenderPrimary("jobs-select", fiber.Map{"Databases": epds.ListDatabases(), "Job": c.Query("job")}, c)
+	selected := c.Query("target-database")
+	dbs := epds.ListDatabases()
+	found := false
+	for _, dbName := range dbs {
+		if dbName == selected {
+			found = true
+			break
+		}
+	}
+	if !found && len(dbs) > 0 {
+		selected = dbs[0]
+	}
+	return h.RenderPrimary("jobs-select", fiber.Map{"Databases": dbs, "Job": c.Query("job"), "Selected": selected}, c)
 }
 
 // JobsSelectDatabase will render the database information partial
@@ -106,7 +117,6 @@ func (h *Handler) JobsSelectDatabase(c *fiber.Ctx) error {
 
 	database, err := epds.NewDatabase(c.Query("name"))
 	if err != nil {
-		fmt.Println(err)
 		return fiber.NewError(fiber.StatusBadRequest, "bad database name")
 	}
 

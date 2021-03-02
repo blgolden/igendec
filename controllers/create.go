@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/blgolden/igendec/epds"
 	"github.com/blgolden/igendec/params"
 
 	"github.com/blgolden/igendec/logger"
@@ -27,6 +28,7 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 	m["Jobs"] = jobs
 	m["Endpoints"] = params.EndpointSlice
 	m["IndexTypes"] = params.IndexTypes
+	m["Databases"] = epds.ListDatabases()
 
 	return h.RenderPrimary("create", m, c)
 }
@@ -72,10 +74,15 @@ func (h *Handler) CreateBuild(c *fiber.Ctx) error {
 		if err != nil {
 			return ErrInternalServer
 		}
+		ecoParams.IndexTerminal = indextype == params.Terminal
 	}
 
-	// Set the indexTerminal
-	ecoParams.IndexTerminal = indextype == params.Terminal
+	// If a target database has been given, set the IndexComponents defaults to be the available keys
+	// in the selected database
+	if db, err := epds.NewDatabase(c.Query("target-database")); err == nil {
+		ecoParams.IndexComponents = db.TraitKeys(ecoParams.IndexComponents)
+		masterParams.TargetDatabase = db.Name
+	}
 
 	// Set these to the users values
 	if err = user.SaveEcoParams(ecoParams); err != nil {
@@ -160,7 +167,6 @@ func (h *Handler) CreateSubmit(c *fiber.Ctx) error {
 
 	// Save the comment
 	ip.Comment = c.FormValue("comment")
-	fmt.Println(ip.Comment)
 
 	jobname := strings.TrimSpace(c.FormValue("name"))
 	if !NameRegex.MatchString(jobname) {

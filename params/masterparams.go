@@ -3,7 +3,6 @@ package params
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"math"
 	"os"
@@ -19,7 +18,9 @@ import (
 
 // MasterParams should mock main file for iGenDec
 type MasterParams struct {
-	Comment                       string             `json:"Comment"`
+	Comment        string `json:"comment"`
+	TargetDatabase string `json:"target-database"`
+
 	Burnin                        int                `json:"burnin"`
 	PlanningHorizon               int                `json:"planningHorizon"`
 	Traits                        []string           `json:"Traits"`
@@ -41,19 +42,6 @@ type MasterParams struct {
 	BullBatteryBreedComposition   []interface{}      `json:"BullBatteryBreedComposition"`
 	CurrentCalvesBreedComposition []interface{}      `json:"CurrentCalvesBreedComposition"`
 	BreedCompositions             []BreedComposition `json:"BreedCompositions"` // Custom field - will be ignored by iGenDec
-}
-
-// MasterParamsFromReader parses the content in the reader into ecoparams struct
-func MasterParamsFromReader(r io.Reader) (*MasterParams, error) {
-	bytes, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-	var ip = &MasterParams{}
-	if err = json.Unmarshal(bytes, ip); err != nil {
-		return nil, err
-	}
-	return ip, nil
 }
 
 // Bytes returns the marshalled index params
@@ -128,9 +116,14 @@ func (params *MasterParams) ToMap(m map[string]interface{}) map[string]interface
 	return m
 }
 
-// DefaultMasterParams will return the default values for index.hjson file
+// DefaultMasterParams returns the default master parameter file for users
 func DefaultMasterParams() (*MasterParams, error) {
-	file, err := os.Open(DefaultMasterPath)
+	return MasterParamsFromFile(DefaultMasterPath)
+}
+
+// MasterParamsFromFile parses a master parameter file and validifies the fields
+func MasterParamsFromFile(filename string) (*MasterParams, error) {
+	file, err := os.Open(filename)
 	if err != nil {
 		return nil, fmt.Errorf("opening file: %w", err)
 	}
@@ -143,7 +136,7 @@ func DefaultMasterParams() (*MasterParams, error) {
 
 	// Switch on the filetype. If its hjson need to do some marshalling and unmarshalling magic
 	// and if its just JSON do a simple unmarshall
-	if filepath.Ext(DefaultMasterPath) == ".hjson" {
+	if filepath.Ext(filename) == ".hjson" {
 		m := make(map[string]interface{})
 		if err = hjson.Unmarshal(data, &m); err != nil {
 			return nil, fmt.Errorf("parsing hjson: %w", err)

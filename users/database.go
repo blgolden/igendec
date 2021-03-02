@@ -129,11 +129,7 @@ func (db *LocalDatabase) Update(user *User) error {
 
 // GetIndexParams returns indexParams.hjson file for the user
 func (db *LocalDatabase) GetIndexParams(user string) (*params.MasterParams, error) {
-	r, err := os.Open(PathToUserFile(user, FileMasterFilename))
-	if err != nil {
-		return nil, err
-	}
-	return params.MasterParamsFromReader(r)
+	return params.MasterParamsFromFile(PathToUserFile(user, FileMasterFilename))
 }
 
 // SetMasterParams writes the given index params to the database
@@ -147,11 +143,7 @@ func (db *LocalDatabase) SetMasterParams(user string, ip *params.MasterParams) e
 
 // GetEcoParams returns ecoParams.hjson file for the user
 func (db *LocalDatabase) GetEcoParams(user string) (*params.EcoParams, error) {
-	r, err := os.Open(PathToUserFile(user, FileEcoFilename))
-	if err != nil {
-		return nil, err
-	}
-	return params.EcoParamsFromReader(r)
+	return params.EcoParamsFromFile(PathToUserFile(user, FileEcoFilename))
 }
 
 // SetEcoParams writes the given eco params to the database
@@ -176,15 +168,11 @@ func (db *LocalDatabase) ListJobs(user string) []string {
 	return jobs
 }
 
-// GetJobFile will return the bytes for the job file specified
-func (db *LocalDatabase) GetJobFile(user, job, file string) ([]byte, error) {
-	return ioutil.ReadFile(PathToJobFile(user, job, file))
-}
-
-// SetJobFile will write the given bytes as a job file to the database
-func (db *LocalDatabase) SetJobFile(user, job, file string, data []byte) error {
-	os.MkdirAll(PathToJobFile(user, job, ""), database.dirperm)
-	return ioutil.WriteFile(PathToJobFile(user, job, file), data, db.perm)
+// GetJobFilename returns the path to the given job file
+func (db *LocalDatabase) GetJobFilename(user, job, file string) string {
+	p := PathToJobFile(user, job, file)
+	os.MkdirAll(filepath.Dir(p), database.dirperm)
+	return p
 }
 
 // DeleteJob will remove the given job if it exists

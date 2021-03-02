@@ -1,10 +1,10 @@
 # iGenDec
-iGenDec is web based software that calculates the marginal economic values (MEV) of a selection index suitable for making breeding stock purchase decisions in North American commercial beef cattle production systems. It uses a simluation model to estimate the second derivitives of the profit function (MEV) for a specific production situation. The user, supported by a trained facilitator, provides parameters that reflect a commercial cattle operation. iGenDec then provides a selection index that can be used to value alternatives bull, semen, heifer or embryo purchases.
 
 ### Dev Notes:
   
 #### Performance:
 - Each time a user creates a new run the default parameter files are re-read, parsed, and then injected into the html templates. If the server comes under a large stress this could affect the performance. It is helpful at early stages as it allows updating of the default files without a server reset, and it's simple but could update to parse once on start and keep the defaults sitting in memory.
+
 
 #### Front end
 - Uses html templates. The templates can be found in the views directory. The files html files in the top level are for each seperate end point a user can visit. All of the html files in the folders are the partials/components that will be updated with AJAX. 

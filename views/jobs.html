@@ -33,15 +33,15 @@
     })
 
     // redirects the page to a get request for a file
-    function DownloadJob(name){
-        window.location.href = "/jobs/download?id="+name
+    function DownloadJob(name) {
+        window.location.href = "/jobs/download?id=" + name
     }
 
     // Deletes the given job
-    function DeleteJob(name){
+    function DeleteJob(name) {
         $.ajax({
-        type: 'DELETE',
-        url: "/jobs/delete?id="+name,
+            type: 'DELETE',
+            url: "/jobs/delete?id=" + name,
         }).done(function () {
             $('#jobAlert').collapse('hide')
             window.location.reload()
@@ -52,8 +52,8 @@
     }
 
     // loads the selection page
-    function BullSelection(name){
-        window.location.href = "/jobs/select?job="+name
+    function BullSelection(name, targetDatabase) {
+        window.location.href = `/jobs/select?job=${name}&target-database=${targetDatabase}`
     }
 
 </script>

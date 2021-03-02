@@ -10,9 +10,15 @@
 <form>
 
     <div class="form-row justify-content-between">
-        <div class="form-group col-md-6">
+        <div class="form-group col-md-4">
             <label>Job Name</label>
             <input type="text" class="form-control" value="{{.Job.Name}}" id="currentJobName" readonly required>
+        </div>
+
+        <div class="form-group col-md-4" {{if not .Job.TargetDatabase}}style="display: none;" {{end}}>
+            <label>Target Database</label>
+            <input type="text" class="form-control" value="{{.Job.TargetDatabase}}" id="targetDatabase" readonly
+                required>
         </div>
 
 
@@ -31,6 +37,11 @@
     <label>Comment:</label>
 
     <pre class="text-area">{{.Job.Comment}}</pre>
+
+
+
+
+
 
 
     {{if eq .Job.Status "passed"}}
@@ -71,7 +82,7 @@
 <div class="form-group">
     <label>Bull Selection</label>
     <button style="display: block;" class="btn btn-main form-control normal-width"
-        onclick="BullSelection($('#currentJobName').val());">Select</button>
+        onclick="BullSelection($('#currentJobName').val(), $('#targetDatabase').val());">Select</button>
     <small class="form-text text-muted">
         Allows you to choose from several databases, and run this job's results against that database.
     </small>
