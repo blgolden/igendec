@@ -1,5 +1,7 @@
 # iGenDec
 
+iGenDec documentation is available from https://github.com/blgolden/igendec/wiki
+
 ### Dev Notes:
   
 #### Performance:
