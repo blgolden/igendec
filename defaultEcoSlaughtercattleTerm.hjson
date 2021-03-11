@@ -26,7 +26,7 @@ SC,S,900,9999,187
 SC,F,0,599,187
 SC,F,600,900,207
 SC,F,900,9999,187
-MW,C,0,9999,60
+MW,C,0,9999,0
 	]
 
 	// Grid premiums and discounts
