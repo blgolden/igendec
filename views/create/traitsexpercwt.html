@@ -1,3 +1,61 @@
+{{define "tsppcTableRow"}}
+<tr class="tsppc-row" data-sex="{{.Sex}}" data-trait="{{.Trait}}">
+    <td class="weight-range-cell">
+        {{if eq .WeightHigh 9999}}
+            <span class="input-group-text" style="width: 100%;"><span class="lower-value">{{.WeightLow}}</span>&nbsp;+</span>
+        {{else}}
+        <div class="input-group">
+            <div class="input-group-prepend" >
+                <span class="input-group-text" style="width: 4em"><span class="lower-value">{{.WeightLow}}</span>&nbsp;-</span>
+            </div>
+            <input 
+            style="width: 5em;"
+            class="form-control" type="number" min="0" value="{{.WeightHigh}}" required>
+        </div>
+        {{end}}
+        
+    </td>
+    
+    <td class="price-cell">
+        <div class="input-group" style="width: 8em;">
+            <div class=" input-group-prepend">
+                <span class="input-group-text">$</span>
+            </div>
+            <input class="form-control tsppc-val"  type="number" step="0.01" min="0" value="{{.Cost}}" required>
+        </div>
+    </td>
+</tr>
+{{end}}
+
+
+{{define "tsppcTable"}}
+
+<table class="table table-sm table-bordered tsppc-table" >
+    <thead class="thead-dark">
+        <tr>
+            <th colspan="2">{{.Name}}</th>
+        </tr>
+        
+        <tr>
+            <th scope="col" style="font-size: small;">Weight Range (lbs)</th>
+            <th scope="col" style="font-size: small;">Price/cwt</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        {{range $i,$v := .Values}}
+            {{template "tsppcTableRow" $v}}
+        {{end}}
+        <tr>
+            <td class="clickable-cell" colspan="2" style="text-align: center;">+</td>
+        </tr>
+    </tbody>
+</table>
+
+
+{{end}}
+
+
 {{if not (eq .SaleEndpoint "slaughtercattle")}}
 <div class="btn-group btn-group-toggle toggle-tab" data-toggle="buttons">
     <label class="btn btn-secondary tsppcDisplayToggle active">
@@ -9,46 +67,27 @@
 </div>
 {{end}}
 
+
+
+
 <div class="tsppcDisplay">
     <form id="tsppcForm">
 
         <div class="alert alert-danger collapse" id="tsppcValidatorAlert" role="alert"></div>
 
 
-        <table class="table table-sm table-bordered" style="width: 500px; margin-left: auto; margin-right: auto;">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Type</th>
-                    <th scope="col">Weight Range</th>
-                    <th scope="col">Price/cwt</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .TraitSexPrice}}
-                <tr>
-                    <td>{{.Type}}</td>
-                    {{if gt .WeightHigh 2000}}
-                    {{if eq .WeightLow 0}}
-                    <td>All Weights</td>
-                    {{else}}
-                    <td>{{.WeightLow}} lbs +</td>
-                    {{end}}
-                    {{else}}
-                    <td>{{.WeightLow}} - {{.WeightHigh}}lbs</td>
-                    {{end}}
-                    <td>
-                        <div class="input-group">
-                            <div class=" input-group-prepend">
-                                <span class="input-group-text">$</span>
-                            </div>
-                            <input class="form-control normal-width tsppc-val tsppc-{{.Type}}" data-meta="{{.Meta}}"
-                                data-prefix="{{.Trait}}" type="number" step="0.01" min="0" value="{{.Cost}}" required>
-                        </div>
-                    </td>
-                </tr>
-                {{end}}
-            </tbody>
-        </table>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-evenly;">
+            <div id="steer-table">
+                {{template "tsppcTable" .SteerTraitSexPrice}}
+            </div>
+            <div id="heifer-table">
+                {{template "tsppcTable" .HeiferTraitSexPrice}}
+            </div>  
+            <div id="cow-table">
+                {{template "tsppcTable" .CowTraitSexPrice}}
+            </div>
+        </div>
+
     </form>
 
 
@@ -61,7 +100,7 @@
     </div>
     {{end}}
 
-    {{if eq .SaleEndpoint "slaughtercattle"}}
+{{if eq .SaleEndpoint "slaughtercattle"}}
     <h4 class="text-center mt-4">Grid Premiums</h4>
 
     <p class="help">
@@ -105,13 +144,12 @@
             {{end}}
         </tbody>
     </table>
-
-    {{end}}
+{{end}}
 
 
 </div>
 
-<div class="tsppcDisplay" style="display: none;">
+<div class="tsppcDisplay" style="display: none; margin-bottom: 2em;">
     <canvas id="tsppcChart" style="height: 90%; width: 90%;"></canvas>
 </div>
 
@@ -137,10 +175,10 @@
 
         let obj = { TraitSexPricePerCwt: [] };
 
-        // Valid
-        $('.tsppc-val').each(function (i) {
-            obj.TraitSexPricePerCwt[i] = $(this).data('prefix') + "," + $(this).data('meta') + "," + $(this).val()
-        })
+        let traits = getTraits();
+        traits.steer.forEach((v) => {obj.TraitSexPricePerCwt.push(`${v.trait},${v.sex},${v.low},${v.high},${v.cost}`)})
+        traits.heifer.forEach((v) => {obj.TraitSexPricePerCwt.push(`${v.trait},${v.sex},${v.low},${v.high},${v.cost}`)})
+        traits.cow.forEach((v) => {obj.TraitSexPricePerCwt.push(`${v.trait},${v.sex},${v.low},${v.high},${v.cost}`)})
 
         if (GetRunType() == "slaughtercattle") {
             obj.GridPremiums = [];
@@ -152,17 +190,55 @@
             obj.proportionInProgram = $('[name="proportionInProgram"]').val() + "";
         }
 
-
-
-
         // Save the changes to server
         UpdateCreateValues(obj, '#tsppcNextButton', '#tsppcServerAlert')
     })
 
-
+    // Toggles the pages between the graphs and values view
     $('.tsppcDisplayToggle').on('click', function () {
         if ($(this).hasClass('active')) return
+        updateTsppcChart();
         $('.tsppcDisplay').toggle();
+    })
+
+
+    // Updates the next lower weight value when the previous upper value changes
+    $('.tsppc-table').on('change', ".weight-range-cell input", function(){
+        let self = $(this);
+        let value = parseInt(self.val()) || 0;
+        let parent = self.closest('tr');
+        let thisLower = parseInt(parent.find('.weight-range-cell .input-group-text .lower-value').text());
+        let next = parent.next();
+        let nextUpper = parseInt(next.find('.weight-range-cell input').val());
+
+        if (value <= thisLower){
+            parent.remove();
+            parent.prev().find(".weight-range-cell input").trigger('change');
+        }
+        if (value >= nextUpper) {
+            next.remove();
+            self.trigger('change');
+        }
+
+        next.find('.weight-range-cell .input-group-text .lower-value').text(value);
+    })
+
+    // Adds a new cell to the main tables for Steers, Heifers and Cows
+    $('.tsppc-table .clickable-cell').on('click', function(){
+        let self = $(this);
+        let prev = self.closest('tr').prev();
+        prev.before(`{{template "tsppcTableRow" (index .SteerTraitSexPrice.Values 0)}}`);
+        
+        let top = prev.find('.weight-range-cell .input-group-text .lower-value');
+        let value = parseInt(top.text()) + 1;
+        top.text(value);
+
+        let newRow = prev.prev();
+        newRow.find('.weight-range-cell input').val(value);
+        newRow.find('.weight-range-cell .lower-value').text(value - 1);
+        newRow.find('.price-cell .tsppc-val').val(0);
+        newRow.data("trait", prev.data("trait"))
+        newRow.data("sex", prev.data("sex"))
     })
 
 
@@ -173,7 +249,6 @@
         {
             type: 'line',
             data: {
-                labels: ["0 lbs", "400 lbs", "500 lbs", "600 lbs", "700 lbs", "800 lbs", "1000 lbs"],
                 datasets: [{
                     label: 'Steer',
                     borderWidth: 2,
@@ -207,7 +282,19 @@
 
             options: {
                 scales: {
+                    xAxes: [{
+                        type: 'linear',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Pounds (lbs)'
+                        }
+                    }],
+
                     yAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Cost'
+                        },
                         ticks: {
                             reverse: false,
                             min: 0,
@@ -231,11 +318,14 @@
                         tsppcChart.data.datasets[datasetIndex].data[index + 1].y = value.y;
                     }
                 },
-                onDragEnd: function (e) {
+                onDragEnd: function (e, datasetIdx, idx, value) {
                     e.target.style.cursor = 'default'
-                    var ds = tsppcChart.data.datasets
-                    var traits = ds[0].data.slice(0, -1).concat(ds[1].data.slice(0, -1), ds[2].data.slice(0, -1))
-                    setTraits(traits.map((v) => parseFloat(v.y)))
+                    const idxID = {
+                        0: "#steer-table",
+                        1: "#heifer-table",
+                        2: "#cow-table",
+                    };
+                    $(`${idxID[datasetIdx]} .tsppc-val:eq(${idx})`).val(value.y);
                 },
                 hover: {
                     onHover: function (e) {
@@ -252,37 +342,55 @@
     $(document).ready(updateTsppcChart())
 
     function updateTsppcChart() {
-        var traits = getTraitsForChart();
+        var traits = getTraits();
 
-        tsppcChart.data.datasets[0].data = traits[0];
-        tsppcChart.data.datasets[1].data = traits[1];
-        tsppcChart.data.datasets[2].data = traits[2];
+        tsppcChart.data.datasets[0].data = traits.steer.map((v) => {return {x: v.low, y: v.cost}})
+        tsppcChart.data.datasets[1].data = traits.heifer.map((v) => {return {x: v.low, y: v.cost}})
+        tsppcChart.data.datasets[2].data = traits.cow.map((v) => {return {x: v.low, y: v.cost}})
+
+        let finalSteer = traits.steer[traits.steer.length - 1];
+        let finalHeifer = traits.heifer[traits.heifer.length - 1];
+        let finalCow = traits.cow[traits.cow.length - 1];
+        let upper = "" + (Math.round(Math.max(finalSteer.low, finalHeifer.low, finalCow.low) / 100) * 100 + 100);
+
+        tsppcChart.data.datasets[0].data.push({x: upper, y: finalSteer.cost})
+        tsppcChart.data.datasets[1].data.push({x: upper, y: finalHeifer.cost})
+        tsppcChart.data.datasets[2].data.push({x: upper, y: finalCow.cost})
+
+        tsppcChart.data.datasets[0].data[0].x = "1"
+        tsppcChart.data.datasets[1].data[0].x = "1"
+        tsppcChart.data.datasets[2].data[0].x = "1"
+
         tsppcChart.update();
     }
 
-    // Gets traits for the chart to display
-    function getTraitsForChart() {
-        var steer = [];
-        var heifer = [];
-        var labels = tsppcChart.data.labels;
+    // Gets traits in nice objects from the html
+    function getTraits() {
+        getObj = (id) => {
+            let arr = [];
+            $(id + ' .tsppc-row').each(function () {
+                arr.push({
+                    low: $(this).find(".weight-range-cell .lower-value").text(), 
+                    high: $(this).find(".weight-range-cell input").val() || 9999, 
+                    cost: $(this).find(".price-cell input").val(), 
+                    trait: $(this).data("trait"), 
+                    sex: $(this).data("sex"),
+                 })
+            });
+            return arr
+        }
 
-        $('.tsppc-Steer').each(function (i) {
-            steer[i] = { x: labels[i], y: $(this).val() }
-        })
-        steer.push({ x: labels[labels.length - 1], y: steer[steer.length - 1].y })
-
-        $('.tsppc-Heifer').each(function (i) {
-            heifer[i] = { x: labels[i], y: $(this).val() }
-        })
-        heifer.push({ x: labels[labels.length - 1], y: heifer[heifer.length - 1].y })
-
-        var cow = [{ x: labels[0], y: $('.tsppc-Cow').val() }, { x: labels[labels.length - 1], y: $('.tsppc-Cow').val() }];
-
-        return [steer, heifer, cow]
-    }
-
-    function setTraits(traits) {
-        $('.tsppc-val').each(function (i) { $(this).val(traits[i]) })
+        return {steer: getObj("#steer-table"), heifer: getObj("#heifer-table"), cow: getObj("#cow-table")}
     }
 
 </script>
+
+<style>
+.tsppc-table .weight-range-cell,td{ 
+    padding: 0rem;
+}
+.tsppc-table .price-cell,td{ 
+    padding: 0rem;
+}
+
+</style>

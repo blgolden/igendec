@@ -40,22 +40,36 @@ func (params *EcoParams) Bytes() ([]byte, error) {
 func (params *EcoParams) ToMap(m map[string]interface{}) map[string]interface{} {
 
 	// Build slice for trait-sex prices
-	traitSexPrices := make([]TraitSexPriceField, len(params.TraitSexPricePerCwt))
-	for i, s := range params.TraitSexPricePerCwt {
-		tokens := strings.Split(s, ",")
-		traitSexPrices[i] = TraitSexPriceField{
-			Trait: tokens[0],
-			Type:  SexMap[tokens[1]],
-			Meta:  strings.Join(tokens[1:len(tokens)-1], ","),
-		}
+	var steerTraitSexPrices, heiferTraitSexPrices, cowTraitSexPrices []TraitSexPriceField
 
+	for _, s := range params.TraitSexPricePerCwt {
+		tokens := strings.Split(s, ",")
+		obj := TraitSexPriceField{
+			Trait: tokens[0],
+			Sex:   tokens[1],
+		}
 		// Ignore errors as would set to zero if they failed anyway
-		traitSexPrices[i].WeightLow, _ = strconv.Atoi(tokens[2])
-		traitSexPrices[i].WeightHigh, _ = strconv.Atoi(tokens[3])
-		traitSexPrices[i].Cost, _ = strconv.ParseFloat(tokens[4], 64)
+		obj.WeightLow, _ = strconv.Atoi(tokens[2])
+		obj.WeightHigh, _ = strconv.Atoi(tokens[3])
+		obj.Cost, _ = strconv.ParseFloat(tokens[4], 64)
+
+		switch tokens[1] {
+		case SteerCode:
+			steerTraitSexPrices = append(steerTraitSexPrices, obj)
+		case HeiferCode:
+			heiferTraitSexPrices = append(heiferTraitSexPrices, obj)
+		case CowCode:
+			cowTraitSexPrices = append(cowTraitSexPrices, obj)
+		}
+	}
+	type TraitSexPriceType struct {
+		Name   string
+		Values []TraitSexPriceField
 	}
 
-	m["TraitSexPrice"] = traitSexPrices
+	m["SteerTraitSexPrice"] = TraitSexPriceType{"Steer", steerTraitSexPrices}
+	m["HeiferTraitSexPrice"] = TraitSexPriceType{"Heifer", heiferTraitSexPrices}
+	m["CowTraitSexPrice"] = TraitSexPriceType{"Cow", cowTraitSexPrices}
 
 	m["SaleEndpoint"] = params.SaleEndpoint
 	m["DiscountRate"] = params.DiscountRate

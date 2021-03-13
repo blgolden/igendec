@@ -63,17 +63,22 @@ type AgeRange struct {
 // TraitSexPriceField is a single field in TraitSexPricePerCWT element
 type TraitSexPriceField struct {
 	Trait                 string
-	Type                  string
+	Sex                   string
 	WeightLow, WeightHigh int
 	Cost                  float64
-	Meta                  string // Will hold the formatting in a string for convenience sake
 }
 
 // SexMap maps symbols to animal types
+const (
+	SteerCode  = "S"
+	HeiferCode = "F"
+	CowCode    = "C"
+)
+
 var SexMap = map[string]string{
-	"S": "Steer",
-	"F": "Heifer",
-	"C": "Cow",
+	SteerCode:  "Steer",
+	HeiferCode: "Heifer",
+	CowCode:    "Cow",
 }
 
 // TraitMap maps trait symbols to descriptions
