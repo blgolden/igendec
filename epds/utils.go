@@ -327,7 +327,7 @@ func (db *Database) findFilename() error {
 				return fmt.Errorf("multiple csv files in directory")
 			}
 			db.databaseFile = info.Name()
-		}
+		}			fmt.Println(err)
 	}
 	if db.databaseFile == "" {
 		return fmt.Errorf("could not find a csv database")
@@ -354,7 +354,7 @@ func (db *Database) Test() error {
 
 // Just create an array of bulls EPDs and index score
 // Used by starter to calculate correlations
-func (db *Database) RetrieveBulls(job *users.Job, fieldNames []string) (*[]Bull, error) {
+func (db *Database) RetrieveBulls(fieldNames []string) (*[]Bull, error) {
 
 	// Find the filename for the databases CSV
 	if err := db.findFilename(); err != nil {
