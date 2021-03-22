@@ -327,7 +327,8 @@ func (db *Database) findFilename() error {
 				return fmt.Errorf("multiple csv files in directory")
 			}
 			db.databaseFile = info.Name()
-		}			fmt.Println(err)
+		}
+		//fmt.Println(err)
 	}
 	if db.databaseFile == "" {
 		return fmt.Errorf("could not find a csv database")
