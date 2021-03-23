@@ -111,17 +111,18 @@ func parseJob(r io.Reader) (*Job, error) {
 
 // Run uses the exec package to run the iGenDec job with the starters binary
 // starters needs to be in the path
-func (job *Job) Run() error {
+func (job *Job) Run(databasePath string) error {
+	defer os.Remove(PathToJobFile(job.user.Username, job.Name, FileJobProcessingFlag))
 	os.Create(PathToJobFile(job.user.Username, job.Name, FileJobProcessingFlag))
 	cmd := exec.Command("starter", "-genParm", PathToJobFile(job.user.Username, job.Name, FileMasterFilename),
 		"-indexParm", PathToJobFile(job.user.Username, job.Name, FileEcoFilename),
 		"-outputFile", PathToJobFile(job.user.Username, job.Name, FileJobOutput),
-		"-outputMode", "web",
+		"-database-path", databasePath,
+		"-outputMode", "none",
 	)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("running job: %w", err)
 	}
-	os.Remove(PathToJobFile(job.user.Username, job.Name, FileJobProcessingFlag))
 	return nil
 }
 

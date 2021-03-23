@@ -19,7 +19,7 @@ import (
 // MasterParams should mock main file for iGenDec
 type MasterParams struct {
 	Comment        string `json:"comment"`
-	TargetDatabase string `json:"target-database"`
+	TargetDatabase string `json:"target-database,omitempty"`
 
 	Burnin                        int                `json:"burnin"`
 	PlanningHorizon               int                `json:"planningHorizon"`

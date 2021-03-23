@@ -178,7 +178,7 @@ func (h *Handler) CreateSubmit(c *fiber.Ctx) error {
 		logger.Debug("%s", err)
 		return ErrInternalServer
 	}
-	if err = job.Run(); err != nil {
+	if err = job.Run(epds.DatabasePath); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to run job. Please contact support")
 	}
 	return c.SendStatus(fiber.StatusOK)
@@ -199,7 +199,7 @@ func (h *Handler) CreateRun(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).SendString(InternalServerErrorString)
 	}
 
-	if err = job.Run(); err != nil {
+	if err = job.Run(epds.DatabasePath); err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to run job. Please contact support")
 	}
 	return c.SendStatus(fiber.StatusOK)
