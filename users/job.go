@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/blgolden/igendec/params"
 	"github.com/hjson/hjson-go"
 	"github.com/klauspost/compress/zip"
-	"github.com/blgolden/igendec/params"
 )
 
 type trait string
@@ -113,7 +113,11 @@ func parseJob(r io.Reader) (*Job, error) {
 // starters needs to be in the path
 func (job *Job) Run() error {
 	os.Create(PathToJobFile(job.user.Username, job.Name, FileJobProcessingFlag))
-	cmd := exec.Command("starter", "-genParm", PathToJobFile(job.user.Username, job.Name, FileMasterFilename), "-indexParm", PathToJobFile(job.user.Username, job.Name, FileEcoFilename), "-outputFile", PathToJobFile(job.user.Username, job.Name, FileJobOutput))
+	cmd := exec.Command("starter", "-genParm", PathToJobFile(job.user.Username, job.Name, FileMasterFilename),
+		"-indexParm", PathToJobFile(job.user.Username, job.Name, FileEcoFilename),
+		"-outputFile", PathToJobFile(job.user.Username, job.Name, FileJobOutput),
+		"-outputMode", "web",
+	)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("running job: %w", err)
 	}
