@@ -48,27 +48,46 @@
 
     <div class="page-divider"></div>
 
+    <div class="btn-group btn-group-toggle toggle-tab-inline" data-toggle="buttons">
+        <label class="btn btn-secondary outputDisplayToggle active">
+            <input type="radio" name="options" autocomplete="off" checked> Values
+        </label>
+        <label class="btn btn-secondary outputDisplayToggle">
+            <input type="radio" name="options" autocomplete="off"> Graph
+        </label>
+    </div>
+
     <h4 class=".page-header">Output</h4>
-    <table class="table table-sm" style="margin: auto;">
-        <thead class="strong-table-header">
-            <tr>
-                <th scope="col"><b>Trait</b></th>
-                <th scope="col"><b>Component</b></th>
-                <th scope="col"><b>Marginal Economic Value</b></th>
-            </tr>
-        </thead>
-        <tbody>
 
-            {{ range .Job.Output }}
-            <tr>
-                <td scope="col"><b>{{.Trait.String}}</b></td>
-                <td scope="col"><b>{{.Component.String}}</b></td>
-                <td scope="col"><b>{{.DisplayMEV}}</b></td>
-            </tr>
-            {{end}}
+    <div class="outputDisplay">
 
-        </tbody>
-    </table>
+        <table class="table table-sm" style="margin: auto;">
+            <thead class="strong-table-header">
+                <tr>
+                    <th scope="col"><b>Trait</b></th>
+                    <th scope="col"><b>Component</b></th>
+                    <th scope="col"><b>Marginal Economic Value</b></th>
+                </tr>
+            </thead>
+            <tbody>
+
+                {{ range .Job.Output }}
+                <tr>
+                    <td scope="col"><b>{{.Trait.String}}</b></td>
+                    <td scope="col"><b>{{.Component.String}}</b></td>
+                    <td scope="col"><b>{{.DisplayMEV}}</b></td>
+                </tr>
+                {{end}}
+
+            </tbody>
+        </table>
+    </div>
+    <div class="outputDisplay" style="display: none;">
+        <canvas id="emphasisChart" style="height: 90%; width: 90%;"></canvas>
+    </div>
+
+
+
 
     {{end}}
 </form>
@@ -112,3 +131,60 @@
 <div class="alert alert-danger collapse" id="jobAlert" role="alert"></div>
 <div class="alert alert-success collapse" id="jobSuccessAlert" role="alert"></div>
 {{end}}
+
+
+
+<script>
+    $('.outputDisplayToggle').on('click', function () {
+        if ($(this).hasClass('active')) return;
+        $('.outputDisplay').toggle();
+    })
+
+
+    let data = JSON.parse({{json .Job}});
+    console.log(data);
+    
+    var emphasisChart = new Chart(document.getElementById('emphasisChart').getContext('2d'),
+            {
+                type: 'pie',
+                data: {
+                    labels: data.indexElement.map((val) => `${val.trait} - ${val.component}`),
+                    datasets: [{
+                        label: 'Emphasis Values',
+                        data: data.indexElement.map((val) => val.emphasis),
+                        backgroundColor: data.indexElement.map((v, idx) =>  rainbow(data.indexElement.length, idx, 'A0')),
+                        hoverBackgroundColor: data.indexElement.map((v, idx) => rainbow(data.indexElement.length, idx, 'FF')),
+                        hoverBorderColor: '#DDDDDD',
+                        hoverBorderWidth: 4,
+                    },
+                    ]
+                },
+                options: {}
+            }
+        );
+
+
+    function rainbow(numOfSteps, step, opacityHex) {
+        // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
+        // Adam Cole, 2011-Sept-14
+        // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+        var r, g, b;
+        var h = step / numOfSteps;
+        var i = ~~(h * 6);
+        var f = h * 6 - i;
+        var q = 1 - f;
+        switch (i % 6) {
+            case 0: r = 1; g = f; b = 0; break;
+            case 1: r = q; g = 1; b = 0; break;
+            case 2: r = 0; g = 1; b = f; break;
+            case 3: r = 0; g = q; b = 1; break;
+            case 4: r = f; g = 0; b = 1; break;
+            case 5: r = 1; g = 0; b = q; break;
+        }
+        var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+        return (c + opacityHex);
+    }
+
+
+</script>
+

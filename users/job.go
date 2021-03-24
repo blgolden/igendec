@@ -75,6 +75,9 @@ type IndexElement struct {
 	Trait                 trait     `json:"trait"`
 	Component             component `json:"component"`
 	MarginalEconomicValue float64   `json:"mev"`
+	Emphasis              float64   `json:"emphasis"`
+	Correlation           float64   `json:"correlation"`
+	GeneticStdDev         float64   `json:"geneticStdDev"`
 	DisplayMEV            string
 }
 

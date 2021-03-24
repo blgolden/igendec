@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -93,6 +94,10 @@ func setup(ctx context.Context) {
 	// Set templating engine to html templates
 	// Keeping templates in folder 'views'
 	engine := html.New("./views", ".html")
+	engine.AddFunc("json", func(i interface{}) string {
+		data, _ := json.Marshal(i)
+		return string(data)
+	})
 
 	// Create app
 	app := fiber.New(fiber.Config{
