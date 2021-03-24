@@ -83,7 +83,11 @@
         </table>
     </div>
     <div class="outputDisplay" style="display: none;">
-        <canvas id="emphasisChart" style="height: 90%; width: 90%;"></canvas>
+        <canvas id="emphasisChart"></canvas>
+        {{if .Job.TargetDatabase}}
+        <div style="margin: 2em 0;"></div>
+        <canvas id="correlationChart"></canvas>
+        {{end}}
     </div>
 
 
@@ -141,8 +145,7 @@
     })
 
 
-    let data = JSON.parse({{json .Job}});
-    console.log(data);
+    var data = JSON.parse({{json .Job}});
     
     var emphasisChart = new Chart(document.getElementById('emphasisChart').getContext('2d'),
             {
@@ -150,7 +153,6 @@
                 data: {
                     labels: data.indexElement.map((val) => `${val.trait} - ${val.component}`),
                     datasets: [{
-                        label: 'Emphasis Values',
                         data: data.indexElement.map((val) => val.emphasis),
                         backgroundColor: data.indexElement.map((v, idx) =>  rainbow(data.indexElement.length, idx, 'A0')),
                         hoverBackgroundColor: data.indexElement.map((v, idx) => rainbow(data.indexElement.length, idx, 'FF')),
@@ -159,9 +161,55 @@
                     },
                     ]
                 },
-                options: {}
+                options: { 
+                    title: {
+                        display: true,
+                        text: 'Emphasis'
+                    }
+                }
             }
         );
+
+        {{if .Job.TargetDatabase}}
+
+
+        var correlationChart = new Chart(document.getElementById('correlationChart').getContext('2d'),
+            {
+                type: 'bar',
+                data: {
+                    labels: data.indexElement.map((val) => `${val.trait} - ${val.component}`),
+                    datasets: [{
+                        data: data.indexElement.map((val) => val.correlation),
+                        backgroundColor: data.indexElement.map((v, idx) => rainbow(data.indexElement.length, idx, 'A0')),
+                        hoverBackgroundColor: data.indexElement.map((v, idx) => rainbow(data.indexElement.length, idx, 'FF')),
+                        hoverBorderColor: '#DDDDDD',
+                        hoverBorderWidth: 4,
+                    },
+                    ]
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'Correlation with {{.Job.TargetDatabase}}'
+                    },
+                    legend: {
+                        display: false
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                max: 1,
+                                min: -1
+                            }
+                        }]
+                    }
+                }            
+            }
+        );
+
+        {{end}}
+
 
 
     function rainbow(numOfSteps, step, opacityHex) {
