@@ -319,7 +319,7 @@ CD,0,730
 	//	cow conception rate in this breeding season length
 	//	initial calving difficulty death loss rate
 	herds: [
-		Spring, 500, 180, 60, .80, .01
+		Spring, 500, 180, 60, .90, .01
 		#Spring, 500, 180, 60, .4, .01
 		// Fall, 500, , 90, .3, .01
 	]
