@@ -316,7 +316,7 @@ CD,0,730
 	//	target number cows, 
 	//	breeding start date of calendar year in days, 
 	//	breeding season length in days, 
-	//	cow conception rate to 1 exposure in 21 days
+	//	cow conception rate in this breeding season length
 	//	initial calving difficulty death loss rate
 	herds: [
 		Spring, 500, 180, 60, .80, .01
