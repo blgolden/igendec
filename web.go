@@ -29,7 +29,7 @@ import (
 
 // CLI stuff
 var (
-	version           = "0.0.2"
+	version           = "0.0.3"
 	port              = kingpin.Flag("port", "Port to listen on").Short('p').Default("3000").Int()
 	addr              = kingpin.Flag("addr", "Address to listen on").Short('a').Default("localhost").String()
 	defaultMasterPath = kingpin.Flag("master-path", "Path to the default master parameter file").Default("./defaultMaster.hjson").String()
