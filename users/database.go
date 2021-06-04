@@ -31,8 +31,8 @@ const (
 	FileMasterFilename  = "masterParams.hjson"
 	FileEcoFilename     = "ecoParams.hjson"
 
-	//FileJobOutput         = "output.hjson"
-	FileJobOutput         = "output.json"
+	FileJobOutput         = "output.hjson"
+	//FileJobOutput         = "output.json"
 	FileJobProcessingFlag = ".processing"
 )
 
