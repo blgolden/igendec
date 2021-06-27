@@ -1,6 +1,6 @@
 # iGenDec
 
-iGenDec documentation is available from https://github.com/blgolden/igendec/wiki
+iGenDec documentation is available from https://github.com/blgolden/igendec/wiki including the installation instructions.
 
 ### Dev Notes:
   
