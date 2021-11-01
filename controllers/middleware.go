@@ -9,7 +9,10 @@ import (
 // Otherwise, renders the sign in page
 func (h *Handler) Authorise(c *fiber.Ctx) error {
 	// if !h.Session.Exists(c) {
-	// 	u, _ := users.NewUser("jh").Get()
+	// 	u, err := users.NewUser("jh").Get()
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
 	// 	h.Session.New(c, u)
 	// }
 	// return c.Next()

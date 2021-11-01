@@ -7,11 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/blgolden/igendec/params"
 
@@ -38,17 +40,29 @@ var (
 var DatabasePath = "./epds/"
 
 // ListDatabases returns a list of all the databases in this directory
-func ListDatabases() []string {
-	infos, err := ioutil.ReadDir(DatabasePath)
-	if err != nil {
-		return nil
-	}
-	databases := make([]string, 0, len(infos))
-	for _, info := range infos {
-		if info.IsDir() {
-			databases = append(databases, info.Name())
+func ListDatabases(access users.Access) []string {
+
+	var databases []string
+
+	fs.WalkDir(os.DirFS(DatabasePath), ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || path == "." {
+			return err
 		}
-	}
+		if d.IsDir() && isFile(filepath.Join(DatabasePath, path, filenameReadme)) && isFile(filepath.Join(DatabasePath, path, filenameXref)) {
+			pathTrimmed := strings.TrimPrefix(path, DatabasePath)
+			if pathTrimmed[0] == '/' {
+				pathTrimmed = pathTrimmed[1:]
+			}
+			accessPath, found := access.BestMatch(pathTrimmed)
+			if !found || accessPath.Deny {
+				return nil
+			}
+			databases = append(databases, path)
+			return nil
+		}
+		return nil
+	})
+
 	return databases
 }
 
@@ -75,6 +89,7 @@ func (b *Bull) Fields() []string {
 // Database contains necessary fields for a bull database
 type Database struct {
 	Name         string
+	Root         string
 	Description  string
 	databaseFile string
 	Xref         map[string]Field
@@ -82,11 +97,20 @@ type Database struct {
 
 // NewDatabase returns an object with actionable methods on it
 // for comparing jobs
-func NewDatabase(name string) (*Database, error) {
-	if info, err := os.Stat(filepath.Join(DatabasePath, name)); err != nil || !info.IsDir() {
-		return nil, fmt.Errorf("invalid name for a database")
+func NewDatabase(root string) (*Database, error) {
+	if info, err := os.Stat(root); err != nil || !info.IsDir() {
+		root = filepath.Join(DatabasePath, root)
+		if info, err := os.Stat(root); err != nil || !info.IsDir() {
+			return nil, fmt.Errorf("invalid name for a database")
+		}
 	}
-	db := &Database{Name: name}
+	db := &Database{
+		Root: root,
+		Name: strings.TrimPrefix(root, filepath.Clean(DatabasePath)),
+	}
+	if db.Name[0] == '/' {
+		db.Name = db.Name[1:]
+	}
 
 	// Get the description
 	if err := db.loadReadme(); err != nil {
@@ -157,7 +181,7 @@ func (db *Database) CompareJob(job *users.Job, fieldNames []string) (*bytes.Buff
 	}
 
 	// Read in the CSV
-	file, err := os.Open(filepath.Join(DatabasePath, db.Name, db.databaseFile))
+	file, err := os.Open(filepath.Join(db.Root, db.databaseFile))
 	if err != nil {
 		return nil, fmt.Errorf("opening file: %w", err)
 	}
@@ -269,7 +293,7 @@ func (db *Database) CompareJob(job *users.Job, fieldNames []string) (*bytes.Buff
 }
 
 func (db *Database) loadXref() error {
-	data, err := ioutil.ReadFile(filepath.Join(DatabasePath, db.Name, filenameXref))
+	data, err := ioutil.ReadFile(filepath.Join(db.Root, filenameXref))
 	if err != nil {
 		return fmt.Errorf("reading database xref: %w", err)
 	}
@@ -280,7 +304,7 @@ func (db *Database) loadXref() error {
 		return fmt.Errorf("unmarshalling xref: %w", err)
 	}
 
-	// We can the remarshall/unmarshall the interface to automatically put the struct into our one
+	// We can the remarshal/unmarshal the interface to automatically put the struct into our one
 	xref := make(map[string]Field, len(m))
 	for idx, v := range m {
 		data, err = json.Marshal(v)
@@ -307,7 +331,7 @@ func (db *Database) loadXref() error {
 }
 
 func (db *Database) loadReadme() error {
-	data, err := ioutil.ReadFile(filepath.Join(DatabasePath, db.Name, filenameReadme))
+	data, err := ioutil.ReadFile(filepath.Join(db.Root, filenameReadme))
 	if err != nil {
 		return fmt.Errorf("reading database readme: %w", err)
 	}
@@ -317,7 +341,7 @@ func (db *Database) loadReadme() error {
 
 func (db *Database) findFilename() error {
 	// Find the database filename
-	infos, err := ioutil.ReadDir(filepath.Join(DatabasePath, db.Name))
+	infos, err := ioutil.ReadDir(db.Root)
 	if err != nil {
 		return fmt.Errorf("reading database dir: %w", err)
 	}
@@ -337,7 +361,7 @@ func (db *Database) findFilename() error {
 }
 
 // Test allows you to verify the database can access the files it needs to
-// does not validify the CSV, just checks it exists
+// does not verify the CSV, just checks it exists
 func (db *Database) Test() error {
 	// Load in the files
 	if err := db.loadXref(); err != nil {
@@ -346,9 +370,17 @@ func (db *Database) Test() error {
 	if err := db.findFilename(); err != nil {
 		return fmt.Errorf("database has no .csv file")
 	}
-	file, err := os.Open(filepath.Join(DatabasePath, db.Name, db.databaseFile))
+	file, err := os.Open(filepath.Join(db.Root, db.databaseFile))
 	if err != nil {
-		return fmt.Errorf("coud not open file %s: %w", filepath.Join(DatabasePath, db.Name, db.databaseFile), err)
+		return fmt.Errorf("coud not open file %s: %w", filepath.Join(db.Root, db.databaseFile), err)
 	}
 	return file.Close()
+}
+
+func isFile(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !info.IsDir()
 }

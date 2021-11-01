@@ -92,8 +92,13 @@ func (h *Handler) JobsSelect(c *fiber.Ctx) error {
 	if c.Query("job") == "" {
 		return h.NotFound(c)
 	}
+
+	user, err := h.Session.User(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(InternalServerErrorString)
+	}
 	selected := c.Query("target-database")
-	dbs := epds.ListDatabases()
+	dbs := epds.ListDatabases(user.Access)
 	found := false
 	for _, dbName := range dbs {
 		if dbName == selected {

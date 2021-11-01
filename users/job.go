@@ -53,10 +53,10 @@ func (c component) String() string {
 type JobStatus string
 
 // Statuses for a job
-var (
-	Passed     = JobStatus("passed")
-	Failed     = JobStatus("failed")
-	Processing = JobStatus("processing")
+const (
+	Passed     JobStatus = "passed"
+	Failed     JobStatus = "failed"
+	Processing JobStatus = "processing"
 )
 
 // Job holds information on a job run through create page

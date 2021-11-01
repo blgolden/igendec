@@ -6,8 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/blgolden/igendec/params"
+	"github.com/hjson/hjson-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,6 +27,78 @@ var (
 	ErrUserHasNoPassword = errors.New("User does not have a password")
 )
 
+type AccessPath struct {
+	Path string
+	Deny bool
+}
+
+type Access []AccessPath
+
+func (a Access) BestMatch(path string) (AccessPath, bool) {
+	var best AccessPath
+	bestLen := -1
+	var bestWildcard bool
+
+	for _, a := range a {
+		matches, matchLen, wildcard := a.Match(path)
+		if !matches {
+			continue
+		}
+
+		if matchLen > bestLen {
+			best = a
+			bestLen = matchLen
+			bestWildcard = wildcard
+		}
+		if matchLen == bestLen {
+			switch {
+			case bestWildcard == wildcard:
+				if a.Deny && !best.Deny {
+					best = a
+					bestLen = matchLen
+					bestWildcard = wildcard
+				}
+
+			case !wildcard:
+				best = a
+				bestLen = matchLen
+				bestWildcard = wildcard
+			}
+		}
+	}
+	return best, bestLen != -1
+}
+
+func (a AccessPath) Match(path string) (matches bool, matchLen int, wildcardMatch bool) {
+	if !strings.Contains(a.Path, "*") {
+		if path == a.Path {
+			return true, strings.Count(a.Path, "/") + 1, false
+		}
+		return false, 0, false
+	}
+
+	accessParts := strings.Split(a.Path, "/")
+	pathParts := strings.Split(path, "/")
+
+	if len(accessParts) > len(pathParts) {
+		return false, 0, false
+	}
+
+	for i := 0; i < len(accessParts); i++ {
+		if accessParts[i] == "*" {
+			continue
+		}
+		if accessParts[i] != pathParts[i] {
+			return false, 0, false
+		}
+		matchLen++
+	}
+	if len(accessParts) == len(pathParts) {
+		return true, matchLen, accessParts[len(accessParts)-1] == "*"
+	}
+	return accessParts[len(accessParts)-1] == "*", matchLen, accessParts[len(accessParts)-1] == "*"
+}
+
 // User has the fields a user needs
 type User struct {
 	Firstname string
@@ -38,6 +112,12 @@ type User struct {
 
 	// Password - hashed and salted
 	Password []byte
+
+	// Access is an array of paths we can use
+	// to define what datasets the user has access to.
+	// Each path should directly correlate with the
+	// structure of the epds directory
+	Access Access
 }
 
 // NewUser returns a new user with only the Username field filled in
@@ -45,13 +125,20 @@ type User struct {
 func NewUser(username string) *User {
 	return &User{
 		Username: username,
+		Access:   Access{{Path: "*"}}, // by default allow all
 	}
 }
 
 // NewUserFromBytes returns a new user by parsing the bytes with JSON
 func NewUserFromBytes(data []byte) (*User, error) {
+	var tmp map[string]interface{}
+	err := hjson.Unmarshal(data, &tmp)
+	if err != nil {
+		return nil, err
+	}
+	data, _ = json.Marshal(tmp)
 	user := &User{}
-	err := json.Unmarshal(data, user)
+	err = json.Unmarshal(data, user)
 	return user, err
 }
 
@@ -62,6 +149,7 @@ func (u *User) ToMap(m map[string]interface{}) map[string]interface{} {
 	m["Email"] = u.Email
 	m["Location"] = u.Location
 	m["Username"] = u.Username
+	m["Access"] = u.Access
 	return m
 }
 
@@ -71,11 +159,7 @@ func (u *User) Get() (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	u.Firstname = new.Firstname
-	u.Surname = new.Surname
-	u.Email = new.Email
-	u.Location = new.Location
-	u.Password = new.Password
+	*u = *new
 	return u, nil
 }
 
@@ -245,10 +329,10 @@ func (u *User) SetJobParamsAsActive(name string) error {
 
 // String returns the representation of a user for debugging
 func (u *User) String() string {
-	return fmt.Sprintf("%-16s%s\n%-16s%s %s\n%-16s%s\n%-16s%t", "Username:", u.Username, "Name:", u.Firstname, u.Surname, "Email:", u.Email, "Has Password:", u.Password != nil)
+	return fmt.Sprintf("%-16s%s\n%-16s%s %s\n%-16s%s\n%-16s%t\n%-16s%v\n", "Username:", u.Username, "Name:", u.Firstname, u.Surname, "Email:", u.Email, "Has Password:", u.Password != nil, "Access:", u.Access)
 }
 
 // Bytes returns JSON marshalled bytes
 func (u *User) Bytes() ([]byte, error) {
-	return json.Marshal(u)
+	return hjson.Marshal(u)
 }

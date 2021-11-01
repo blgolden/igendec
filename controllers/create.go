@@ -28,7 +28,7 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 	m["Jobs"] = jobs
 	m["Endpoints"] = params.EndpointSlice
 	m["IndexTypes"] = params.IndexTypes
-	m["Databases"] = epds.ListDatabases()
+	m["Databases"] = epds.ListDatabases(user.Access)
 
 	return h.RenderPrimary("create", m, c)
 }
@@ -81,7 +81,7 @@ func (h *Handler) CreateBuild(c *fiber.Ctx) error {
 	// in the selected database
 	if db, err := epds.NewDatabase(c.Query("target-database")); err == nil {
 		ecoParams.IndexComponents = db.TraitKeys(ecoParams.IndexComponents)
-		masterParams.TargetDatabase = db.Name
+		masterParams.TargetDatabase = db.Root
 	}
 
 	// Set these to the users values
