@@ -28,7 +28,7 @@ Example of a typical `hjson` user profile you will find in the `users` directory
 
 Where the Access field is used to control access to the databases. It is an array of objects where `Path` is the database path relative to the epds root, and `Deny` is optional, and if true that path will be denied access.
 
-Path can include wildcards, eg: `AHA/*` to allow access to all AHA database paths. When a user first signs in, they are given access to all databases (so they have the permission you see in the example), it is to the admin to then refine the access.
+Path can include wildcards, eg: `AHA/*` to allow access to all AHA database paths. When a user first signs in, they are given access to all databases (so they have the permission you see in the example), it is to the admin to then refine the access. **Note:** to support the existing database, if a user is found to have no access statements, they are given access to all databases. To deny all access, set `Deny: true` explicitly for all paths.
 
 When the algorithm checks if a user can view a database, it will search through the Access list checking for the best match. The best match is defined by the longest path with the least number of wildcards. For example, if the database in question is `AHA/2019Bulls` and the user has the following access:
 
@@ -63,6 +63,7 @@ The algorithm does allow for more complex systems. Say if you wanted to make a s
     }
   ]
 ```
+
 which would deny access to all datasets except a Sample database nested one level down.
 
 ### Dev Notes:
