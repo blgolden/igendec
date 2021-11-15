@@ -352,7 +352,6 @@ func (db *Database) findFilename() error {
 			}
 			db.databaseFile = info.Name()
 		}
-		//fmt.Println(err)
 	}
 	if db.databaseFile == "" {
 		return fmt.Errorf("could not find a csv database")

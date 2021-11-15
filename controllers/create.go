@@ -130,11 +130,9 @@ func (h *Handler) CreateUpdate(c *fiber.Ctx) error {
 
 	// Try parse into structs
 	if err = c.BodyParser(ip); err != nil {
-		fmt.Println(err)
 		return c.Status(fiber.StatusBadRequest).SendString("Could not read values")
 	}
 	if err = c.BodyParser(ep); err != nil {
-		fmt.Println(err)
 		return c.Status(fiber.StatusBadRequest).SendString("Could not read values")
 	}
 

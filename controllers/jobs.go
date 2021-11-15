@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/blgolden/igendec/epds"
@@ -166,7 +165,6 @@ func (h *Handler) JobsSelectDatabaseCompare(c *fiber.Ctx) error {
 
 	buf, err := database.CompareJob(job, values)
 	if err != nil {
-		fmt.Println(err)
 		return c.Status(fiber.StatusInternalServerError).SendString(InternalServerErrorString)
 	}
 
