@@ -8,14 +8,6 @@ import (
 // Authorises a user before going to any page
 // Otherwise, renders the sign in page
 func (h *Handler) Authorise(c *fiber.Ctx) error {
-	// if !h.Session.Exists(c) {
-	// 	u, err := users.NewUser("jh").Get()
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	h.Session.New(c, u)
-	// }
-	// return c.Next()
 	if !isExceptionRoute(c.Path()) && !h.Session.Exists(c) {
 		return c.Redirect("/signin")
 	}
