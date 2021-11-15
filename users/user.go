@@ -27,6 +27,8 @@ var (
 	ErrUserHasNoPassword = errors.New("User does not have a password")
 )
 
+var defaultAccess = Access{{Path: "*"}}
+
 type AccessPath struct {
 	Path string
 	Deny bool
@@ -125,7 +127,7 @@ type User struct {
 func NewUser(username string) *User {
 	return &User{
 		Username: username,
-		Access:   Access{{Path: "*"}}, // by default allow all
+		Access:   defaultAccess, // by default allow all
 	}
 }
 
@@ -158,6 +160,9 @@ func (u *User) Get() (*User, error) {
 	new, err := database.Get(u.Username)
 	if err != nil {
 		return nil, err
+	}
+	if len(new.Access) == 0 {
+		new.Access = defaultAccess
 	}
 	*u = *new
 	return u, nil
