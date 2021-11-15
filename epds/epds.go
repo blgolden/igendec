@@ -95,14 +95,22 @@ type Database struct {
 	Xref         map[string]Field
 }
 
-// NewDatabase returns an object with actionable methods on it
-// for comparing jobs
-func NewDatabase(root string) (*Database, error) {
+func checkIsDir(root string) (string, error) {
 	if info, err := os.Stat(root); err != nil || !info.IsDir() {
 		root = filepath.Join(DatabasePath, root)
 		if info, err := os.Stat(root); err != nil || !info.IsDir() {
-			return nil, fmt.Errorf("invalid name for a database")
+			return "", fmt.Errorf("invalid name for a database")
 		}
+	}
+	return root, nil
+}
+
+// NewDatabase returns an object with actionable methods on it
+// for comparing jobs
+func NewDatabase(root string) (*Database, error) {
+	root, err := checkIsDir(root)
+	if err != nil {
+		return nil, err
 	}
 	db := &Database{
 		Root: root,
@@ -121,6 +129,23 @@ func NewDatabase(root string) (*Database, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+var iconFiles = []string{"icon.png", "icon.jpg", "icon.jpeg", "icon.svg"}
+
+func FindIconFor(root string) (string, error) {
+	root, err := checkIsDir(root)
+	if err != nil {
+		return "", err
+	}
+	for root := root; root != "."; root = filepath.Dir(root) {
+		for _, icon := range iconFiles {
+			if isFile(filepath.Join(root, icon)) {
+				return filepath.Join(root, icon), nil
+			}
+		}
+	}
+	return "", fmt.Errorf("no icon found")
 }
 
 // FieldSlice returns a slice of the fields in the order that makes sense

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"net/url"
 	"strings"
 
 	"github.com/blgolden/igendec/epds"
@@ -172,4 +173,18 @@ func (h *Handler) JobsSelectDatabaseCompare(c *fiber.Ctx) error {
 	c.Append(fiber.HeaderContentDisposition, `attachment; filename="compare.csv"`)
 
 	return c.Send(buf.Bytes())
+}
+
+// JobsSelectDatabase will render the database information partial
+// to be injected into the database select page
+func (h *Handler) GetIconForDatabase(c *fiber.Ctx) error {
+	database, err := url.QueryUnescape(c.Query("name"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("bad database name")
+	}
+	icon, err := epds.FindIconFor(database)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).SendString("Icon Not Found")
+	}
+	return c.SendFile(icon)
 }

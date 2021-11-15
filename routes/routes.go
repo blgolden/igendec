@@ -2,8 +2,8 @@
 package routes
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"github.com/blgolden/igendec/controllers"
+	"github.com/gofiber/fiber/v2"
 )
 
 // RegisterRoutes calls all the routes in the package to be registered
@@ -57,5 +57,6 @@ func Jobs(app *fiber.App, h *controllers.Handler) {
 
 	jobs.Get("/select", h.JobsSelect)
 	jobs.Get("/select/database", h.JobsSelectDatabase)
+	jobs.Get("/select/database/icon", h.GetIconForDatabase)
 	jobs.Post("/select/database/compare", h.JobsSelectDatabaseCompare)
 }
