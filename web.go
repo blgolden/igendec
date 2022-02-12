@@ -46,7 +46,8 @@ var (
 	defaultSlaughterPath     = kingpin.Flag("eco-slaughter-path", "Path to the default economic index parameter file for slaughter cattle").Default("./defaultEcoSlaughtercattle.hjson").String()
 	defaultSlaughterTermPath = kingpin.Flag("eco-slaughter-term-path", "Path to the default economic index parameter file for slaughter cattle for a terminal index").Default("./defaultEcoSlaughtercattleTerm.hjson").String()
 
-	databaseDirectory = kingpin.Flag("bull-database", "Path to the directory containing all of the epds for running jobs against").Short('d').Default("./epds").String()
+	databaseDirectory = kingpin.Flag("bull-database", "Path to the directory containing all of the epds for running jobs against").Short('d').Default("./").String()
+//	databaseDirectory = kingpin.Flag("bull-database", "Path to the directory containing all of the epds for running jobs against").Short('d').Default("./epds").String()
 	userBlacklist     = kingpin.Flag("user-blacklist", "Path to file containing a list of names. These users will not be authenticated on login").Short('b').Default("./user-blacklist.txt").String()
 
 	usersPath = kingpin.Flag("users-path", "Path to location where users' accounts are stored").Short('u').Default("/tmp/igendecDB").String()
