@@ -116,7 +116,7 @@ func NewDatabase(root string) (*Database, error) {
 		Root: root,
 		Name: strings.TrimPrefix(root, filepath.Clean(DatabasePath)),
 	}
-	if db.Name[0] == '/' {
+	if len(db.Name) > 0 && db.Name[0] == '/' {
 		db.Name = db.Name[1:]
 	}
 
